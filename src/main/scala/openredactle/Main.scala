@@ -6,7 +6,5 @@ import org.scalajs.dom
 @main def main(): Unit =
   renderOnDomContentLoaded(
     dom.document.getElementById("app"),
-    div(
-      p("Hello, World!")
-    ),
+    Game.renderElement,
   )
