@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val livechart = project.in(file("."))
+lazy val openredactle = project.in(file("."))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     scalaVersion := "3.3.1",
@@ -10,5 +10,8 @@ lazy val livechart = project.in(file("."))
         .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("open-redactle")))
     },
 
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.4.0",
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scalajs-dom" % "2.4.0",
+      "com.raquo" %%% "laminar" % "15.0.1",
+    ),
   )
