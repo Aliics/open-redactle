@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-lazy val openredactle = project.in(file("."))
+lazy val openredactle = project.in(file("webapp"))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     scalaVersion := "3.3.1",
