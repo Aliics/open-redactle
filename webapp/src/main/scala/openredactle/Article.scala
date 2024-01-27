@@ -25,14 +25,5 @@ object Article:
 
   private def renderArticleData: Element =
     div(
-      children <-- articleData.signal.map: articleData =>
-        articleData.map: data =>
-          val typ = data match
-            case Title(words) => h1
-            case Header(words) => h2
-            case Paragraph(words) => p
-
-          typ:
-            val words = data.words.map(_.element)
-            for (w <- words; spaced <- List(w, span(" "))) yield spaced
+      children <-- articleData.signal.splitByIndex(ArticleData.renderArticleData)
     )
