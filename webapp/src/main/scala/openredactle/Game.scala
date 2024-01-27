@@ -10,6 +10,6 @@ object Game:
       display := "flex",
       height := "100%",
 
-      div(Article.renderElement),
-      div(Guesses.renderElement),
+      Article.renderElement,
+      Guesses.renderElement,
     )
