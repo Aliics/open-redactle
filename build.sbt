@@ -1,4 +1,4 @@
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
 lazy val webapp = project.in(file("webapp"))
   .enablePlugins(ScalaJSPlugin)
@@ -21,7 +21,9 @@ lazy val server = project.in(file("server"))
   .settings(
     scalaVersion := Versions.scala,
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "upickle" % Versions.upickle,
+      "org.java-websocket" % "Java-WebSocket" % Versions.javaWebsocket,
+      "org.slf4j" % "slf4j-simple" % Versions.slf4j,
+      "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
     ),
   )
 
