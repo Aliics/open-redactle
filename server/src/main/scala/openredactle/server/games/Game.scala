@@ -41,13 +41,13 @@ class Game:
 
   def addGuess(guess: String): Unit =
     val added = knownWords add guess
-    val matches = fullArticleData.zipWithIndex.map: (articleData, idx) =>
-      val guessed = articleData.words.zipWithIndex.collect:
+    val matches = fullArticleData.map: articleData =>
+      articleData.words.zipWithIndex.collect:
         case (Known(word), idx) if word equalsIgnoreCase guess => (word, idx)
       .map(_._2)
       .toArray
-      idx -> guessed
-
+    .zipWithIndex
+    .map(t => t._2 -> t._1) // lol
     .filter(_._2.nonEmpty)
     .toArray
 

@@ -1,6 +1,6 @@
 package openredactle.shared.message
 
-import openredactle.shared.data.{ArticleData, Word}
+import openredactle.shared.data.ArticleData
 import upickle.default.{*, given}
 
 enum Message derives ReadWriter:
