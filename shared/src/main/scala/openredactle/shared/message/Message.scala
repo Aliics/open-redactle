@@ -5,11 +5,13 @@ import upickle.default.{*, given}
 
 enum Message derives ReadWriter:
   // Inputs
-  case RequestStart()
-  case Join(gameId: String)
+  case StartGame()
+  case JoinGame(gameId: String)
+  case AddGuess(guess: Word)
 
   // Outputs
-  case GameState(gameId: String, playerCount: Int, words: Seq[Word])
+  case GameState(gameId: String, playerCount: Int, words: Seq[Word], guesses: List[String])
+  case NewGuess(guess: Word)
   case PlayerJoined(position: Int)
   case PlayerLeft(position: Int)
   case Error(message: String)

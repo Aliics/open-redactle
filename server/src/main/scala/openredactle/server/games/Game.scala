@@ -1,7 +1,9 @@
 package openredactle.server.games
 
 import openredactle.shared.message.Message
+import openredactle.shared.data.Word.*
 import openredactle.server.send
+import openredactle.shared.data.Word
 import org.java_websocket.WebSocket
 import upickle.default.{*, given}
 
@@ -33,3 +35,8 @@ class Game:
   private def broadcast(message: Message): Unit =
     connectedPlayers.synchronized:
       connectedPlayers.foreach(_.send(message))
+      
+  val words: mutable.ListBuffer[Word] = mutable.ListBuffer(
+    Unknown(5), Unknown(5),
+    Unknown(5), Unknown(5), Known("dolor"), Known("sit"), Known("amet"),
+  )

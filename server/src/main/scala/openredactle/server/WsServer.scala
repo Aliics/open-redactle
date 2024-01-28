@@ -2,7 +2,6 @@ package openredactle.server
 
 import com.typesafe.scalalogging.Logger
 import openredactle.server.games.Game
-import openredactle.shared.data.Word.{Known, Unknown}
 import openredactle.shared.message.{*, given}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
@@ -30,21 +29,21 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)):
       conn.send(Message.GameState(
         gameId = game.id,
         playerCount = playerCount,
-        words = Seq(
-          Unknown(5), Unknown(5),
-          Unknown(5), Unknown(5), Known("dolor"), Known("sit"), Known("amet"),
-        )
+        words = game.words.toSeq,
+        guesses = List(),
       ))
 
     val msg = read[Message](message)
     msg match
-      case Message.RequestStart() =>
+      case Message.StartGame() =>
         logger.info("Starting new game!")
         connectToGame(games.create())
-      case Message.Join(gameId) =>
+      case Message.JoinGame(gameId) =>
         games.findById(gameId) match
           case Some(game) => connectToGame(game)
           case None => conn.send(Message.Error("Game not found"))
+      case Message.AddGuess(guess) =>
+        // TODO: broadcast the new guess and add to game state
       case _ =>
         logger.error(s"Invalid message $message")
 
