@@ -1,21 +1,39 @@
-import org.scalajs.linker.interface.ModuleSplitStyle
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 lazy val webapp = project.in(file("webapp"))
   .enablePlugins(ScalaJSPlugin)
+  .dependsOn(sharedJs)
   .settings(
-    scalaVersion := "3.3.1",
+    scalaVersion := Versions.scala,
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
     },
 
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.4.0",
-      "com.raquo" %%% "laminar" % "15.0.1",
+      "org.scala-js" %%% "scalajs-dom" % Versions.scalaJs,
+      "com.raquo" %%% "laminar" % Versions.laminar,
     ),
   )
 
 lazy val server = project.in(file("server"))
+  .dependsOn(sharedJvm)
   .settings(
-    scalaVersion := "3.3.1",
+    scalaVersion := Versions.scala,
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %% "upickle" % Versions.upickle,
+    ),
   )
+
+lazy val shared = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("shared"))
+  .settings(
+    scalaVersion := Versions.scala,
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %%% "upickle" % Versions.upickle,
+    ),
+  )
+
+lazy val sharedJs = shared.js
+lazy val sharedJvm = shared.jvm

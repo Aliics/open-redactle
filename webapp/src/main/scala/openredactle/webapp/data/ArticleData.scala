@@ -1,6 +1,7 @@
 package openredactle.webapp.data
 
 import com.raquo.laminar.api.L.{*, given}
+import openredactle.shared.data.Word
 
 enum ArticleData(val words: Seq[Word]):
   case Title(override val words: Seq[Word]) extends ArticleData(words)
