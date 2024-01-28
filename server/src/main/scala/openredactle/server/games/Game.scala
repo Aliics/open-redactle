@@ -1,42 +1,67 @@
 package openredactle.server.games
 
-import openredactle.shared.message.Message
-import openredactle.shared.data.Word.*
 import openredactle.server.send
-import openredactle.shared.data.Word
+import openredactle.shared.data.ArticleData.{Paragraph, Title}
+import openredactle.shared.data.Word.*
+import openredactle.shared.data.{ArticleData, Word}
+import openredactle.shared.message.Message
+import openredactle.shared.message.Message.NewGuess
 import org.java_websocket.WebSocket
-import upickle.default.{*, given}
 
-import scala.collection.mutable
+import java.util.concurrent.{ConcurrentLinkedQueue, ConcurrentSkipListSet}
+import scala.jdk.CollectionConverters.*
 import scala.math.random
 
 class Game:
   val id: String =
-    def rng = random * (words.length - 1)
+    def rng = random * (randomWords.length - 1)
     (0 to 2)
-      .map(_ => words(rng.toInt))
+      .map(_ => randomWords(rng.toInt))
       .mkString("-")
 
-  private[games] val connectedPlayers: mutable.ListBuffer[WebSocket] = mutable.ListBuffer()
+  private[games] val connectedPlayers = ConcurrentLinkedQueue[WebSocket]()
 
   def connect(conn: WebSocket): Int =
-    connectedPlayers.synchronized:
-      broadcast(Message.PlayerJoined(connectedPlayers.length))
-      connectedPlayers += conn
-      connectedPlayers.length
+    broadcast(Message.PlayerJoined(connectedPlayers.size))
+    connectedPlayers.add(conn)
+    connectedPlayers.size
 
-  def disconnect(conn: WebSocket): Int =
-    connectedPlayers.synchronized:
-      val found = connectedPlayers.indexOf(conn)
-      broadcast(Message.PlayerLeft(found))
-      connectedPlayers.remove(found)
-      connectedPlayers.length
+  def disconnect(conn: WebSocket): Unit =
+    connectedPlayers.asScala
+      .zipWithIndex
+      .find(_._1 == conn)
+      .foreach: (conn, idx) =>
+        broadcast(Message.PlayerLeft(idx))
+        connectedPlayers.remove(idx)
 
   private def broadcast(message: Message): Unit =
-    connectedPlayers.synchronized:
-      connectedPlayers.foreach(_.send(message))
-      
-  val words: mutable.ListBuffer[Word] = mutable.ListBuffer(
-    Unknown(5), Unknown(5),
-    Unknown(5), Unknown(5), Known("dolor"), Known("sit"), Known("amet"),
+    connectedPlayers.asScala.foreach(_.send(message))
+
+  private val knownWords = ConcurrentSkipListSet[String](List("dolor", "sit", "amet").asJava)
+
+  def addGuess(guess: String): Unit =
+    val added = knownWords add guess
+    val matches = fullArticleData.zipWithIndex.map: (articleData, idx) =>
+      val guessed = articleData.words.zipWithIndex.collect:
+        case (Known(word), idx) if word equalsIgnoreCase guess => (word, idx)
+      .map(_._2)
+      .toArray
+      idx -> guessed
+
+    .filter(_._2.nonEmpty)
+    .toArray
+
+    if added then broadcast(NewGuess(guess, matches))
+
+  private val fullArticleData: List[ArticleData] = List(
+    Title(Seq(Known("Lorem"), Known("Ipsum"))),
+    Paragraph(Seq(Known("Lorem"), Known("ipsum"), Known("dolor"), Known("sit"), Known("amet")))
   )
+
+  def articleData: List[ArticleData] =
+    fullArticleData.map: articleData =>
+      articleData.copy(words = articleData.words.collect:
+        case Known(word) =>
+          if knownWords.asScala.exists(_ equalsIgnoreCase word) then Known(word)
+          else Unknown(word.length)
+      )

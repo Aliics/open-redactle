@@ -2,24 +2,26 @@ package openredactle.server.games
 
 import org.java_websocket.WebSocket
 
-import scala.collection.mutable
+import java.util.concurrent.ConcurrentLinkedQueue
+import scala.jdk.CollectionConverters.*
 
-private val games: mutable.ListBuffer[Game] = mutable.ListBuffer()
+private val games = ConcurrentLinkedQueue[Game]()
 
 def create(): Game =
   val game = Game()
-  games.synchronized:
-    games += game
+  games.add(game)
   game
 
-def findById(id: String): Option[Game] =
-  games.find(_.id == id)
+def withGame(id: String)(thunk: Game => Unit)(otherwise: => Unit): Unit =
+  games.asScala.find(_.id == id) match
+    case Some(game) => thunk(game)
+    case None => otherwise
 
 def findPlayerGame(conn: WebSocket): Option[Game] =
-  games.find(_.connectedPlayers.contains(conn))
+  games.asScala.find(_.connectedPlayers.contains(conn))
 
 // Thought it would be fun to have a curated list of words for random stuff.
-val words = List(
+val randomWords = List(
   "alpha", "alex", "andrew", "anthony", "angel", "apple", "android", "apathy",
   "bravo", "bob", "bored", "board", "broad", "beard", "banana", "batmitzvah", "bowie",
   "charlie", "cat", "charlie", "caleb", "car", "cookie", "colloquially", "cord", "computer",

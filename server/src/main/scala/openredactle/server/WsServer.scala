@@ -29,7 +29,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)):
       conn.send(Message.GameState(
         gameId = game.id,
         playerCount = playerCount,
-        words = game.words.toSeq,
+        articleData = game.articleData,
         guesses = List(),
       ))
 
@@ -39,11 +39,9 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)):
         logger.info("Starting new game!")
         connectToGame(games.create())
       case Message.JoinGame(gameId) =>
-        games.findById(gameId) match
-          case Some(game) => connectToGame(game)
-          case None => conn.send(Message.Error("Game not found"))
-      case Message.AddGuess(guess) =>
-        // TODO: broadcast the new guess and add to game state
+        games.withGame(gameId)(connectToGame)(conn.send(Message.Error("Game not found")))
+      case Message.AddGuess(gameId, guess) =>
+        games.withGame(gameId)(_.addGuess(guess))(conn.send(Message.Error("Game not found")))
       case _ =>
         logger.error(s"Invalid message $message")
 
