@@ -1,4 +1,4 @@
-package openredactle
+package openredactle.webapp
 
 import com.raquo.laminar.api.L.{*, given}
 

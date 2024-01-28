@@ -1,10 +1,9 @@
-package openredactle
+package openredactle.webapp
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 object Game:
-
   def renderElement: Element =
     div(
       display := "flex",

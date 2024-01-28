@@ -1,10 +1,10 @@
-package openredactle
+package openredactle.webapp
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import openredactle.ArticleData.*
-import openredactle.Word.*
-import org.scalajs.dom.HTMLParagraphElement
+import openredactle.webapp.data.ArticleData
+import openredactle.webapp.data.ArticleData.*
+import openredactle.webapp.data.Word.*
 
 object Article:
   private val articleData = Var(
@@ -24,6 +24,5 @@ object Article:
     )
 
   private def renderArticleData: Element =
-    div(
+    div:
       children <-- articleData.signal.splitByIndex(ArticleData.renderArticleData)
-    )
