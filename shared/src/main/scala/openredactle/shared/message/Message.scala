@@ -1,7 +1,7 @@
 package openredactle.shared.message
 
 import openredactle.shared.data.ArticleData
-import upickle.default.{*, given}
+import upickle.default.ReadWriter
 
 enum Message derives ReadWriter:
   // Inputs

@@ -6,12 +6,12 @@ import openredactle.shared.message.{*, given}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
-import upickle.default.{*, given}
+import upickle.default.read
 
 import java.net.InetSocketAddress
 
 object WsServer extends WebSocketServer(InetSocketAddress(8080)):
-  private val logger = Logger(this.getClass)
+  private given logger: Logger = Logger(this.getClass)
 
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
     logger.info(s"New connection: ${handshake.getResourceDescriptor}")
@@ -26,6 +26,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)):
   override def onMessage(conn: WebSocket, message: String): Unit =
     def connectToGame(game: Game): Unit =
       val playerCount = game.connect(conn)
+      logger.info(s"Connected player to ${game.id}")
       conn.send(Message.GameState(
         gameId = game.id,
         playerCount = playerCount,

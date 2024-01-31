@@ -1,5 +1,6 @@
 package openredactle.server.games
 
+import com.typesafe.scalalogging.Logger
 import openredactle.server.data.wordsFromString
 import openredactle.server.send
 import openredactle.shared.data.ArticleData.*
@@ -16,6 +17,8 @@ import scala.language.implicitConversions
 import scala.math.random
 
 class Game:
+  private given logger: Logger = Logger[Game]
+  
   val id: String =
     def rng = random * (randomWords.length - 1)
     (0 to 2)

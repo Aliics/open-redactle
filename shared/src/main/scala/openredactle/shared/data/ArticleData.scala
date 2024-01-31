@@ -1,6 +1,6 @@
 package openredactle.shared.data
 
-import upickle.default.{*, given}
+import upickle.default.ReadWriter
 
 enum ArticleData(val words: Seq[Word]) extends Product derives ReadWriter:
   case Title(override val words: Seq[Word]) extends ArticleData(words)

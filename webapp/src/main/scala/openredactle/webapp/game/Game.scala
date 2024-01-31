@@ -4,14 +4,19 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.message.Message
 import openredactle.shared.{let, message}
-import org.scalajs.dom.WebSocket
-import upickle.default.{*, given}
+import org.scalajs.dom.{WebSocket, window}
+import upickle.default.{read, write}
 
 object Game:
   private val webSocket = let:
     val ws = WebSocket("ws://localhost:8080/", "ws")
     ws.onopen = _ =>
-      ws.send(write(Message.StartGame()))
+      window.location.pathname.stripPrefix("/") match
+        case "" =>
+          ws.send(write(Message.StartGame()))
+        case gameId =>
+          ws.send(write(Message.JoinGame(gameId)))
+
     ws.onmessage = msg =>
       val message = read[Message](msg.data.asInstanceOf[String])
       message match

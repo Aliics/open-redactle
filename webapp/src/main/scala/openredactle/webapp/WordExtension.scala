@@ -7,6 +7,7 @@ import openredactle.webapp.userSelect
 extension (word: Word)
   def renderElement: Element = word match
     case Word.Known(str) => span(str)
+    case Word.Punctuation(c) => span(c)
     case Word.Unknown(length) =>
       val showingLength = Var(false)
 
