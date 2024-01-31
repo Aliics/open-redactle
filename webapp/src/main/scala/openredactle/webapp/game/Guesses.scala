@@ -1,6 +1,7 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
+import openredactle.webapp.solidBorder
 
 object Guesses:
   private type Guess = (String, Int)
@@ -13,7 +14,7 @@ object Guesses:
       height := "100%",
       display := "flex",
       flexDirection := "column",
-      borderLeft := "solid 1px black",
+      borderLeft := solidBorder(),
 
       renderGuessForm,
 
@@ -33,7 +34,7 @@ object Guesses:
     form(
       display := "flex",
       padding := "1rem",
-      borderBottom := "solid 1px black",
+      borderBottom := solidBorder(),
 
       onSubmit.preventDefault.mapTo(guessInput.now()) --> { w =>
         Game.addGuess(w)
@@ -53,7 +54,7 @@ object Guesses:
     div(
       display := "flex",
       alignItems := "center",
-      borderBottom := "solid 1px black",
+      borderBottom := solidBorder(),
       minWidth := "fit-content",
       fontSize := "14px",
       padding := "0.25rem",

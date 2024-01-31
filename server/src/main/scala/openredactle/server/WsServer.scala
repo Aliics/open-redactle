@@ -10,7 +10,7 @@ import upickle.default.read
 
 import java.net.InetSocketAddress
 
-object WsServer extends WebSocketServer(InetSocketAddress(8081)):
+object WsServer extends WebSocketServer(InetSocketAddress(8080)):
   private given logger: Logger = Logger(this.getClass)
 
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
@@ -40,9 +40,9 @@ object WsServer extends WebSocketServer(InetSocketAddress(8081)):
         logger.info("Starting new game!")
         connectToGame(games.create())
       case Message.JoinGame(gameId) =>
-        games.withGame(gameId)(connectToGame)(conn.send(Message.Error("Game not found")))
+        games.withGame(gameId)(connectToGame)(sendGameNotFoundError(conn, gameId))
       case Message.AddGuess(gameId, guess) =>
-        games.withGame(gameId)(_.addGuess(guess))(conn.send(Message.Error("Game not found")))
+        games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(conn, gameId))
       case _ =>
         logger.error(s"Invalid message $message")
 
@@ -52,3 +52,6 @@ object WsServer extends WebSocketServer(InetSocketAddress(8081)):
   override def onStart(): Unit =
     logger.info("WS started")
     setConnectionLostTimeout(0)
+
+  private def sendGameNotFoundError(conn: WebSocket, attemptedGameId: String): Unit =
+    conn.send(Message.Error(s"Game not found with ID: $attemptedGameId"))

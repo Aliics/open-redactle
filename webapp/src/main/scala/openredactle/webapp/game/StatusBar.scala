@@ -1,15 +1,15 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.userSelect
+import openredactle.webapp.{solidBorder, userSelect}
 import org.scalajs.dom.window
 
 object StatusBar:
   val playerCount: Var[Int] = Var(0)
-  
+
   def renderElement: Element =
     div(
-      borderTop := "solid 1px black",
+      borderTop := solidBorder(),
       display := "flex",
       justifyContent := "space-between",
       padding := "0.25rem",
@@ -20,7 +20,7 @@ object StatusBar:
           cursor := "pointer",
           color := "blue",
           marginLeft := "0.5rem",
-          border := "blue 1px solid",
+          border := solidBorder("blue"),
 
           onClick --> { _ =>
             window.navigator.clipboard.writeText(Game.gameId.now().get)

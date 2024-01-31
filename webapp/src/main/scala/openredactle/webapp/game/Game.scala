@@ -9,7 +9,7 @@ import upickle.default.{read, write}
 
 object Game:
   private val webSocket = let:
-    val ws = WebSocket("ws://localhost:8081/", "ws")
+    val ws = WebSocket("ws://localhost:8080/", "ws")
     ws.onopen = _ =>
       window.location.pathname.stripPrefix("/") match
         case "" =>
@@ -33,9 +33,9 @@ object Game:
         case Message.PlayerLeft(position) =>
           StatusBar.playerCount.update(_ - 1)
         case Message.Error(errorMessage) =>
-          println(errorMessage)
+          Errors.show(errorMessage)
         case _ =>
-          println(s"Unknown message: ${msg.data}")
+          Errors.show(s"Unknown message: ${msg.data}")
     ws
 
   val gameId: Var[Option[String]] = Var(None)
