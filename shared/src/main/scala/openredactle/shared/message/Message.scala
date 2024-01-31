@@ -11,7 +11,7 @@ enum Message derives ReadWriter:
 
   // Outputs
   case GameState(gameId: String, playerCount: Int, articleData: Seq[ArticleData], guesses: List[String])
-  case NewGuess(guess: String, matches: Array[(Int, Array[Int])])
+  case NewGuess(guess: String, matches: Seq[(Int, Seq[Int])])
   case PlayerJoined(position: Int)
   case PlayerLeft(position: Int)
   case Error(message: String)

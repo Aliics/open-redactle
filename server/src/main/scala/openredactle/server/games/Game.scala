@@ -45,11 +45,9 @@ class Game:
       articleData.words.zipWithIndex.collect:
         case (Known(word), idx) if word equalsIgnoreCase guess => (word, idx)
       .map(_._2)
-      .toArray
     .zipWithIndex
     .map(t => t._2 -> t._1) // lol
     .filter(_._2.nonEmpty)
-    .toArray
 
     if added then broadcast(NewGuess(guess, matches))
 
