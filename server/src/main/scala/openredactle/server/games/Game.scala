@@ -1,8 +1,8 @@
 package openredactle.server.games
 
-import openredactle.server.implicits.given
+import openredactle.server.data.wordsFromString
 import openredactle.server.send
-import openredactle.shared.data.ArticleData.{Paragraph, Title}
+import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.let
@@ -40,7 +40,9 @@ class Game:
   private def broadcast(message: Message): Unit =
     connectedPlayers.asScala.foreach(_.send(message))
 
-  private val knownWords = ConcurrentSkipListSet[String](List("dolor", "sit").asJava)
+  private val knownWords = ConcurrentSkipListSet[String](List(
+    "or", "as", "a", "of", "and", "in", "the", "by", "if", "to",
+  ).asJava)
 
   def addGuess(guess: String): Unit =
     val added = knownWords add guess
@@ -61,10 +63,17 @@ class Game:
         case (word, matches) =>
           broadcast(GuessMatch(word, matches))
 
-  private val fullArticleData: List[ArticleData] =
+  private val fullArticleData: List[ArticleData] = let:
     List(
-      Title("Lorem Ipsum"),
-      Paragraph("Lorem ipsum dolor sit amet")
+      Title(wordsFromString("Domestic rabbit")),
+      Paragraph(wordsFromString("The domestic or domesticated rabbit—more commonly known as a pet rabbit, bunny, bun, or bunny rabbit—is the domesticated form of the European rabbit, a member of the lagomorph order. A male rabbit is known as a buck, a female is a doe, and a young rabbit is a kit, or kitten.")),
+      Paragraph(wordsFromString("Rabbits were first used for their food and fur by the Romans, and have been kept as pets in Western nations since the 19th century. Rabbits can be housed in exercise pens, but free roaming without any boundaries in a rabbit-proofed space has become popularized on social media in recent years. Beginning in the 1980s, the idea of the domestic rabbit as a house companion, a so-called house rabbit similar to a house cat, was promoted. Rabbits can be litter box-trained and taught to come when called, but they require exercise and can damage a house that has not been \"rabbit proofed\" based on their innate need to chew. Accidental interactions between pet rabbits and wild rabbits, while seemingly harmless, are usually strongly discouraged due to the species' different temperaments as well as wild rabbits potentially carrying diseases.")),
+      Paragraph(wordsFromString("Unwanted pet rabbits end up in animal shelters, especially after the Easter season (see Easter Bunny). In 2017, they were the United States' third most abandoned pet. Some of them go on to be adopted and become family pets in various forms. Because their wild counterparts have become invasive in Australia, pet rabbits are banned in the state of Queensland. Pet rabbits, being a domesticated breed that lack survival instincts, do not fare well in the wild if they are abandoned or escape from captivity.")),
+
+      Header(wordsFromString("History")),
+      Paragraph(wordsFromString("Phoenician sailors visiting the coast of Spain c. 12th century BC, mistaking the European rabbit for a species from their homeland (the rock hyrax Procavia capensis), gave it the name i-shepan-ham (land or island of hyraxes).")),
+      Paragraph(wordsFromString("The captivity of rabbits as a food source is recorded as early as the 1st century BC, when the Roman writer Pliny the Elder described the use of rabbit hutches, along with enclosures called leporaria. A controversial theory is that a corruption of the rabbit's name used by the Romans became the Latin name for the peninsula, Hispania. In Rome, rabbits were raised in large walled colonies with walls extended underground. According to Pliny, the consumption of unborn and newborn rabbits, called laurices, was considered a delicacy.")),
+      Paragraph(wordsFromString("Evidence for the domestic rabbit is rather late. In the Middle Ages, wild rabbits were often kept for the hunt. Monks in southern France were crossbreeding rabbits at least by the 12th century AD. Domestication was probably a slow process that took place from the Roman period (or earlier) until the 1500s.")),
     )
 
   def articleData: List[ArticleData] =

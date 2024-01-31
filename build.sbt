@@ -31,6 +31,8 @@ lazy val server = project.in(file("server"))
       "org.java-websocket" % "Java-WebSocket" % Versions.javaWebsocket,
       "org.slf4j" % "slf4j-simple" % Versions.slf4j,
       "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
+
+      "org.scalatest" %%% "scalatest" % Versions.scalaTest % Test,
     ),
   )
 
