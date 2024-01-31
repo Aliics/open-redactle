@@ -9,7 +9,7 @@ import upickle.default.{read, write}
 
 object Game:
   private val webSocket = let:
-    val ws = WebSocket("ws://localhost:8080/", "ws")
+    val ws = WebSocket("ws://localhost:8081/", "ws")
     ws.onopen = _ =>
       window.location.pathname.stripPrefix("/") match
         case "" =>
@@ -22,22 +22,23 @@ object Game:
       message match
         case Message.GameState(gameId, playerCount, articleData, guesses) =>
           this.gameId.update(_ => Some(gameId))
+          StatusBar.playerCount.update(_ => playerCount)
           Article.articleData.update(_ => articleData)
         case Message.NewGuess(guess, matchedCount) =>
           Guesses.guessedWords.update(_ :+ (guess, matchedCount))
         case Message.GuessMatch(word, matches) =>
           Article.updateMatched(word, matches)
         case Message.PlayerJoined(position) =>
-          println("A player joined!")
+          StatusBar.playerCount.update(_ + 1)
         case Message.PlayerLeft(position) =>
-          println("A player left!")
+          StatusBar.playerCount.update(_ - 1)
         case Message.Error(errorMessage) =>
           println(errorMessage)
         case _ =>
           println(s"Unknown message: ${msg.data}")
     ws
 
-  private val gameId: Var[Option[String]] = Var(None)
+  val gameId: Var[Option[String]] = Var(None)
 
   def addGuess(guess: String): Unit =
     webSocket.send(write(Message.AddGuess(gameId.now().get, guess)))
@@ -45,8 +46,16 @@ object Game:
   def renderElement: Element =
     div(
       display := "flex",
-      height := "100%",
+      flexDirection := "column",
+      height := "100vh",
 
-      Article.renderElement,
-      Guesses.renderElement,
+      div(
+        display := "flex",
+        height := "100%",
+
+        Article.renderElement,
+        Guesses.renderElement,
+      ),
+
+      StatusBar.renderElement,
     )

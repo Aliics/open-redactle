@@ -10,7 +10,7 @@ import upickle.default.read
 
 import java.net.InetSocketAddress
 
-object WsServer extends WebSocketServer(InetSocketAddress(8080)):
+object WsServer extends WebSocketServer(InetSocketAddress(8081)):
   private given logger: Logger = Logger(this.getClass)
 
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =

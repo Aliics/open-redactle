@@ -5,7 +5,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
-import openredactle.webapp.renderElement
+import openredactle.webapp.data.renderElement
 
 object Article:
   val articleData: Var[Seq[ArticleData]] = Var(Nil)
@@ -41,7 +41,10 @@ object Article:
       case ArticleData.Header(words) => h2
       case ArticleData.Paragraph(words) => p
 
-    typ:
+    typ(
+      lineHeight := "1.1rem",
+
       children <-- articleDataSignal.map: data =>
         val words = data.words.map(_.renderElement)
-        for (w <- words; spaced <- List(w, span(" "))) yield spaced
+        for (w <- words; spaced <- List(w, span(" "))) yield spaced,
+    )

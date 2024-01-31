@@ -18,7 +18,7 @@ import scala.math.random
 
 class Game:
   private given logger: Logger = Logger[Game]
-  
+
   val id: String =
     def rng = random * (randomWords.length - 1)
     (0 to 2)
@@ -82,6 +82,7 @@ class Game:
   def articleData: List[ArticleData] =
     fullArticleData.map: articleData =>
       articleData.copy(words = articleData.words.collect:
+        case p: Punctuation => p
         case Known(word) =>
           if knownWords.asScala.exists(_ equalsIgnoreCase word) then Known(word)
           else Unknown(word.length)
