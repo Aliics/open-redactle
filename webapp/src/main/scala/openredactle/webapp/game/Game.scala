@@ -1,4 +1,4 @@
-package openredactle.webapp
+package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
@@ -18,9 +18,10 @@ object Game:
         case Message.GameState(gameId, playerCount, articleData, guesses) =>
           this.gameId.update(_ => Some(gameId))
           Article.articleData.update(_ => articleData)
-        case Message.NewGuess(guess, matches) =>
-          Guesses.guessedWords.update(_ :+ guess)
-          Article.updateMatched(guess, matches)
+        case Message.NewGuess(guess, matchedCount) =>
+          Guesses.guessedWords.update(_ :+ (guess, matchedCount))
+        case Message.GuessMatch(word, matches) =>
+          Article.updateMatched(word, matches)
         case Message.PlayerJoined(position) =>
           println("A player joined!")
         case Message.PlayerLeft(position) =>

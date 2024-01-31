@@ -1,9 +1,11 @@
-package openredactle.webapp
+package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
 
 object Guesses:
-  val guessedWords: Var[List[String]] = Var(List())
+  private type Guess = (String, Int)
+
+  val guessedWords: Var[List[Guess]] = Var(List())
 
   def renderElement: Element =
     div(
@@ -33,9 +35,10 @@ object Guesses:
       padding := "1rem",
       borderBottom := "solid 1px black",
 
-      onSubmit
-        .preventDefault
-        .mapTo(guessInput.now()) --> Game.addGuess,
+      onSubmit.preventDefault.mapTo(guessInput.now()) --> { w =>
+        Game.addGuess(w)
+        guessInput.update(_ => "")
+      },
 
       input(
         flexGrow := 1,
@@ -46,7 +49,7 @@ object Guesses:
       button("Guess"),
     )
 
-  private def renderGuess(index: Int, initial: String, guessSignal: Signal[String]): Element =
+  private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]): Element =
     div(
       display := "flex",
       alignItems := "center",
@@ -62,5 +65,12 @@ object Guesses:
 
         index + 1,
       ),
-      child.text <-- guessSignal,
+      div(
+        display := "flex",
+        justifyContent := "space-between",
+        width := "100%",
+
+        span(child.text <-- guessSignal.map(_._1)),
+        span(child.text <-- guessSignal.map(_._2)),
+      ),
     )

@@ -1,10 +1,10 @@
-package openredactle.webapp
+package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.Word.*
+import openredactle.shared.data.{ArticleData, Word}
 import openredactle.webapp.renderElement
 
 object Article:
