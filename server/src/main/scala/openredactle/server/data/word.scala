@@ -10,15 +10,16 @@ def wordsFromString(strs: String): Seq[Word] =
     .flatMap: s =>
       val strs = mutable.ListBuffer[Word]()
       var current = ""
-      def applyCurrent() = if current.nonEmpty then strs += Word.Known(current)
+      def applyCurrent(hasSpace: Boolean) =
+        if current.nonEmpty then strs += Word.Known(current, hasSpace)
 
-      for c <- s do
+      for (c, i) <- s.zipWithIndex do
         if c.isLetterOrDigit then current = current + c
         else
-          applyCurrent()
-          strs += Word.Punctuation(c)
+          applyCurrent(hasSpace = false)
+          strs += Word.Punctuation(c, hasSpace = i == s.length - 1)
           current = ""
 
-      applyCurrent()
+      applyCurrent(hasSpace = true)
 
       strs.toList

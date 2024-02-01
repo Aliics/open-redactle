@@ -1,6 +1,6 @@
 package openredactle.shared.message
 
-import openredactle.shared.data.ArticleData
+import openredactle.shared.data.{ArticleData, Word}
 import upickle.default.ReadWriter
 
 enum Message derives ReadWriter:
@@ -12,7 +12,7 @@ enum Message derives ReadWriter:
   // Outputs
   case GameState(gameId: String, playerCount: Int, articleData: Seq[ArticleData], guesses: List[String])
   case NewGuess(guess: String, matchedCount: Int)
-  case GuessMatch(word: String, matches: Seq[(Int, Seq[Int])])
+  case GuessMatch(word: Word.Known, matches: Seq[(Int, Seq[Int])])
   case PlayerJoined(position: Int)
   case PlayerLeft(position: Int)
   case Error(message: String)

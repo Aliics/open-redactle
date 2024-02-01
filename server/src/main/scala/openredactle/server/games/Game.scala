@@ -53,7 +53,7 @@ class Game:
     if added then
       val matches = fullArticleData.map: articleData =>
         articleData.words.zipWithIndex.collect:
-          case (Known(word), idx) if word equalsIgnoreCase guess => word -> idx
+          case (known: Known, idx) if known.str equalsIgnoreCase guess => known -> idx
       .map(_.groupMap(_._1)(_._2))
       .zipWithIndex
       .filter(_._1.nonEmpty)
@@ -83,7 +83,7 @@ class Game:
     fullArticleData.map: articleData =>
       articleData.copy(words = articleData.words.collect:
         case p: Punctuation => p
-        case Known(word) =>
-          if knownWords.asScala.exists(_ equalsIgnoreCase word) then Known(word)
-          else Unknown(word.length)
+        case known@Known(str, hasSpace) =>
+          if knownWords.asScala.exists(_ equalsIgnoreCase str) then known
+          else Unknown(str.length, hasSpace)
       )

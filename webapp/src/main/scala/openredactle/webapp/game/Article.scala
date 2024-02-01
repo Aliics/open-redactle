@@ -3,7 +3,6 @@ package openredactle.webapp.game
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.ArticleData.*
-import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.webapp.data.renderElement
 
@@ -14,18 +13,18 @@ object Article:
     div(
       height := "100%",
       flexGrow := 1,
-      overflow := "scroll",
+      overflowY := "scroll",
       fontFamily := "monospace",
 
       renderArticleData,
     )
 
-  def updateMatched(guess: String, matches: Seq[(Int, Seq[Int])]): Unit =
+  def updateMatched(word: Word, matches: Seq[(Int, Seq[Int])]): Unit =
     articleData.update(_.zipWithIndex.map: (data, idx) =>
       matches.find(_._1 == idx) match
         case Some((_, wordIdxs)) =>
           data.copy(words = wordIdxs.foldLeft(wordIdxs -> data.words):
-            case ((h :: t, w), _) => t -> w.updated(h, Known(guess))
+            case ((h :: t, w), _) => t -> w.updated(h, word)
           ._2)
         case None =>
           data
@@ -44,7 +43,6 @@ object Article:
     typ(
       lineHeight := "1.1rem",
 
-      children <-- articleDataSignal.map: data =>
-        val words = data.words.map(_.renderElement)
-        for (w <- words; spaced <- List(w, span(" "))) yield spaced,
+      children <-- articleDataSignal.map:
+        _.words.map(_.renderElement),
     )

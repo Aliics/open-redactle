@@ -48,6 +48,7 @@ object Game:
       display := "flex",
       flexDirection := "column",
       height := "100vh",
+      maxHeight := "100vh",
 
       div(
         display := "flex",
