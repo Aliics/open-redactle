@@ -28,29 +28,23 @@ class Game:
   private[games] val connectedPlayers = ConcurrentLinkedQueue[WebSocket]()
 
   def connect(conn: WebSocket): Int =
-    broadcast(Message.PlayerJoined(connectedPlayers.size))
+    broadcast(Message.PlayerJoined())
     connectedPlayers.add(conn)
     connectedPlayers.size
 
   def disconnect(conn: WebSocket): Unit =
-    connectedPlayers.asScala
-      .zipWithIndex
-      .find(_._1 == conn)
-      .foreach: (conn, idx) =>
-        broadcast(Message.PlayerLeft(idx))
-        connectedPlayers.remove(idx)
+    connectedPlayers.remove(conn)
+    broadcast(Message.PlayerLeft())
 
   private def broadcast(message: Message): Unit =
     connectedPlayers.asScala.foreach(_.send(message))
 
-  private val knownWords = ConcurrentSkipListSet[String](List(
-    "or", "as", "a", "of", "and", "in", "the", "by", "if", "to",
-  ).asJava)
+  private val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to")
+
+  val guessedWords: ConcurrentSkipListSet[Guess] = ConcurrentSkipListSet[Guess]()
 
   def addGuess(guess: String): Unit =
-    val added = knownWords add guess
-
-    if added then
+    if !guessedWords.asScala.exists(_._1 == guess) then
       val matches = fullArticleData.map: articleData =>
         articleData.words.zipWithIndex.collect:
           case (known: Known, idx) if known.str equalsIgnoreCase guess => known -> idx
@@ -61,7 +55,10 @@ class Game:
         strs.map((s, is) => s -> (i, is))
       .groupMap(_._1)(_._2)
 
-      broadcast(NewGuess(guess, matches.map(_._2.map(_._2.length).sum).sum))
+      val matchedCount = matches.map(_._2.map(_._2.length).sum).sum
+
+      guessedWords.add(Guess(guess, matchedCount))
+      broadcast(NewGuess(guess, matchedCount))
       matches.foreach:
         case (word, matches) =>
           broadcast(GuessMatch(word, matches))
@@ -77,6 +74,15 @@ class Game:
       Paragraph(wordsFromString("Phoenician sailors visiting the coast of Spain c. 12th century BC, mistaking the European rabbit for a species from their homeland (the rock hyrax Procavia capensis), gave it the name i-shepan-ham (land or island of hyraxes).")),
       Paragraph(wordsFromString("The captivity of rabbits as a food source is recorded as early as the 1st century BC, when the Roman writer Pliny the Elder described the use of rabbit hutches, along with enclosures called leporaria. A controversial theory is that a corruption of the rabbit's name used by the Romans became the Latin name for the peninsula, Hispania. In Rome, rabbits were raised in large walled colonies with walls extended underground. According to Pliny, the consumption of unborn and newborn rabbits, called laurices, was considered a delicacy.")),
       Paragraph(wordsFromString("Evidence for the domestic rabbit is rather late. In the Middle Ages, wild rabbits were often kept for the hunt. Monks in southern France were crossbreeding rabbits at least by the 12th century AD. Domestication was probably a slow process that took place from the Roman period (or earlier) until the 1500s.")),
+      Paragraph(wordsFromString("In the 19th century, as animal fancy in general began to emerge, rabbit fanciers began to sponsor rabbit exhibitions and fairs in Western Europe and the United States. Breeds of various domesticated animals were created and modified for the added purpose of exhibition, a departure from the breeds that had been created solely for food, fur, or wool. The rabbit's emergence as a household pet began during the Victorian era.")),
+      Paragraph(wordsFromString("The keeping of the rabbit as a pet commencing from the 1800s coincides with the first observable skeletal differences between the wild and domestic populations, even though captive rabbits had been exploited for over 2,000 years.[1] Domestic rabbits have been popular in the United States since the late 19th century. What became known as the \"Belgian Hare Boom\" began with the importation of the first Belgian Hares from England in 1888 and, soon after, the founding of the American Belgian Hare Association, the first rabbit club in America. From 1898 to 1901, many thousands of Belgian Hares were imported to America.[13] Today, the Belgian Hare is one of the rarest breeds, with only 132 specimens found in the United States in a 2015 census.")),
+      Paragraph(wordsFromString("The American Rabbit Breeders Association (ARBA) was founded in 1910 and is the national authority on rabbit raising and rabbit breeds having a uniform Standard of Perfection, registration and judging system. The domestic rabbit continues to be popular as a show animal and pet. Many thousand rabbit shows occur each year and are sanctioned in Canada and the United States by the ARBA. Today, the domesticated rabbit is the third most popular mammalian pet in Britain after dogs and cats. ")),
+
+      Header(wordsFromString("Experimentation")),
+      Paragraph(wordsFromString("Rabbits have been, and continue to be, used in laboratory work such as the production of antibodies for vaccines and research of human male reproductive system toxicology. The Environmental Health Perspective, published by the National Institute of Health, states, \"The rabbit [is] an extremely valuable model for studying the effects of chemicals or other stimuli on the male reproductive system.\" According to the Humane Society of the United States, rabbits are also used extensively in the study of bronchial asthma, stroke prevention treatments, cystic fibrosis, diabetes, and cancer. Animal rights activists have opposed animal experimentation for non-medical purposes, such as the testing of cosmetic and cleaning products, which has resulted in decreased use of rabbits in these areas.")),
+
+      Header(wordsFromString("Terminology")),
+      Paragraph(wordsFromString("Male rabbits are called bucks; females are called does. An older term for an adult rabbit is coney, while rabbit once referred only to the young animals.[16] Another term for a young rabbit is bunny, though this term is often applied informally (especially by children and rabbit enthusiasts) to rabbits generally, especially domestic ones. More recently, the term kit or kitten has been used to refer to a young rabbit. A young hare is called a leveret; this term is sometimes informally applied to a young rabbit as well. A group of rabbits is known as a \"colony\" or a \"nest\".[17] House rabbit enthusiasts may call their group of house rabbits a \"fluffle\".")),
     )
 
   def articleData: List[ArticleData] =
@@ -84,6 +90,15 @@ class Game:
       articleData.copy(words = articleData.words.collect:
         case p: Punctuation => p
         case known@Known(str, hasSpace) =>
-          if knownWords.asScala.exists(_ equalsIgnoreCase str) then known
+          val matchedGuessedWords = guessedWords.asScala.filter(_.matchedCount > 0).map(_._1)
+          if (freeWords ++ matchedGuessedWords).exists(_ equalsIgnoreCase str) then known
           else Unknown(str.length, hasSpace)
       )
+
+  // Needed so Comparable can be implemented.
+  // We use a ConcurrentSkipListSet, which needs all elements to implement it.
+  case class Guess(word: String, matchedCount: Int) extends Comparable[Guess]:
+    override def compareTo(o: Guess): Int =
+      val wordCmp = word compareTo o.word
+      if wordCmp != 0 then wordCmp
+      else matchedCount compareTo o.matchedCount

@@ -9,6 +9,7 @@ import org.java_websocket.server.WebSocketServer
 import upickle.default.read
 
 import java.net.InetSocketAddress
+import scala.jdk.CollectionConverters.*
 
 object WsServer extends WebSocketServer(InetSocketAddress(8080)):
   private given logger: Logger = Logger(this.getClass)
@@ -31,7 +32,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)):
         gameId = game.id,
         playerCount = playerCount,
         articleData = game.articleData,
-        guesses = List(),
+        guesses = game.guessedWords.asScala.map(g => g.word -> g.matchedCount).toList,
       ))
 
     val msg = read[Message](message)

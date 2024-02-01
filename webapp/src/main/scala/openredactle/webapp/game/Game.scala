@@ -24,13 +24,14 @@ object Game:
           this.gameId.update(_ => Some(gameId))
           StatusBar.playerCount.update(_ => playerCount)
           Article.articleData.update(_ => articleData)
+          Guesses.guessedWords.update(_ => guesses)
         case Message.NewGuess(guess, matchedCount) =>
           Guesses.guessedWords.update(_ :+ (guess, matchedCount))
         case Message.GuessMatch(word, matches) =>
           Article.updateMatched(word, matches)
-        case Message.PlayerJoined(position) =>
+        case Message.PlayerJoined() =>
           StatusBar.playerCount.update(_ + 1)
-        case Message.PlayerLeft(position) =>
+        case Message.PlayerLeft() =>
           StatusBar.playerCount.update(_ - 1)
         case Message.Error(errorMessage) =>
           Errors.show(errorMessage)
@@ -52,7 +53,8 @@ object Game:
 
       div(
         display := "flex",
-        height := "100%",
+        maxHeight := "calc(100% - 2rem)", // Sort of a hack for the status bar.
+        flexGrow := "1",
 
         Article.renderElement,
         Guesses.renderElement,
