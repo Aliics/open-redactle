@@ -8,22 +8,23 @@ object Errors:
     render(
       dom.document.getElementById("app"),
       div(
-        fontFamily := "monospace",
         position := "absolute",
+        width := "100%",
+        height := "100%",
         top := "0",
-        left := "0",
-        right := "0",
-        bottom := "0",
-        backgroundColor := "black",
+
+        fontFamily := "monospace",
         color := "white",
-        textAlign := "center",
+
+        backgroundColor := "black",
+
         display := "flex",
+        textAlign := "center",
         flexDirection := "column",
         justifyContent := "center",
 
         h1("Oh noes!"),
         p(errorMessage),
-
         a(
           href := "/",
           color := "lightblue",
