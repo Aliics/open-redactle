@@ -39,7 +39,7 @@ class Game:
   private def broadcast(message: Message): Unit =
     connectedPlayers.asScala.foreach(_.send(message))
 
-  private val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to")
+  private val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to", "be")
 
   val guessedWords: ConcurrentSkipListSet[Guess] = ConcurrentSkipListSet[Guess]()
 
