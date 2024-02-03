@@ -1,7 +1,7 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{buttonStyle, solidBorder, userSelect}
+import openredactle.webapp.{buttonStyle, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
@@ -18,8 +18,9 @@ object StatusBar:
     div(
       borderTop := solidBorder(),
       display := "flex",
+      alignItems := "center",
       justifyContent := "space-between",
-      padding := "0.25rem",
+      padding := "0.1rem 1rem",
 
       a(
         child.text <-- Game.gameId.signal.map(_ getOrElse ""),
