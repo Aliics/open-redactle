@@ -1,11 +1,18 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{solidBorder, userSelect}
-import org.scalajs.dom.window
+import openredactle.webapp.{buttonStyle, solidBorder, userSelect}
+import org.scalajs.dom.{MouseEvent, window}
+
+import scala.scalajs.js.timers.setTimeout
 
 object StatusBar:
+  private val copyButtonPromptText = "Copy Link"
+  private val copyButtonDoneText = "Link Copied!"
+
   val playerCount: Var[Int] = Var(0)
+
+  private val copyButtonText = Var(copyButtonPromptText)
 
   def renderElement: Element =
     div(
@@ -16,25 +23,22 @@ object StatusBar:
 
       a(
         child.text <-- Game.gameId.signal.map(_ getOrElse ""),
-        a(
-          cursor := "pointer",
-          color := "blue",
-          marginLeft := "0.5rem",
-          border := solidBorder("blue"),
+        button(
+          buttonStyle(),
 
-          onClick --> { _ =>
-            window.navigator.clipboard.writeText(Game.gameId.now().get)
-          },
+          onClick --> copyShareUrl,
 
-          span(
-            fontSize := "12px",
-            padding := "0 0.25rem",
-            userSelect := "none",
-
-            "Copy",
-          ),
+          child.text <-- copyButtonText,
         ),
       ),
 
       span(child.text <-- playerCount.signal.map(c => s"Players: $c")),
     )
+
+  private def copyShareUrl(_e: MouseEvent): Unit =
+    val shareUrl = s"${window.location.host}/${Game.gameId.now().get}"
+    window.navigator.clipboard.writeText(shareUrl)
+
+    copyButtonText.update(_ => copyButtonDoneText)
+    setTimeout(500):
+      copyButtonText.update(_ => copyButtonPromptText)

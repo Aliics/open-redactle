@@ -21,6 +21,8 @@ object Game:
       val message = read[Message](msg.data.asInstanceOf[String])
       message match
         case Message.GameState(gameId, playerCount, articleData, guesses) =>
+          window.history.replaceState((), "", gameId) // Make url match nicely. :)
+
           this.gameId.update(_ => Some(gameId))
           StatusBar.playerCount.update(_ => playerCount)
           Article.articleData.update(_ => articleData)

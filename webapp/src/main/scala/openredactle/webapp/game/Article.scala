@@ -15,6 +15,7 @@ object Article:
       flexGrow := 1,
       overflowY := "scroll",
       fontFamily := "monospace",
+      padding := "0 1rem",
 
       renderArticleData,
     )

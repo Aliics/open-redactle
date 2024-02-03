@@ -1,3 +1,9 @@
 package openredactle.server
 
-@main def main(): Unit = WsServer.start()
+import openredactle.server.games.Games
+
+import scala.concurrent.ExecutionContext.Implicits.global
+
+@main def main(): Unit =
+  Games.runGameReaper()
+  WsServer.start()

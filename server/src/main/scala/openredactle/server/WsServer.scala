@@ -1,7 +1,8 @@
 package openredactle.server
 
 import com.typesafe.scalalogging.Logger
-import openredactle.server.games.Game
+import openredactle.server.data.ImplicitLazyLogger
+import openredactle.server.games.{Game, Games}
 import openredactle.shared.message.{*, given}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
@@ -11,14 +12,12 @@ import upickle.default.read
 import java.net.InetSocketAddress
 import scala.jdk.CollectionConverters.*
 
-object WsServer extends WebSocketServer(InetSocketAddress(8080)):
-  private given logger: Logger = Logger(this.getClass)
-
+object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLazyLogger:
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
-    logger.info(s"New connection: ${handshake.getResourceDescriptor}")
+    logger.info(s"New connection: ${conn.getRemoteSocketAddress}")
 
   override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean): Unit =
-    games.findPlayerGame(conn) match
+    Games.findPlayerGame(conn) match
       case Some(game) =>
         game.disconnect(conn)
       case None =>
@@ -39,11 +38,11 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)):
     msg match
       case Message.StartGame() =>
         logger.info("Starting new game!")
-        connectToGame(games.create())
+        connectToGame(Games.create())
       case Message.JoinGame(gameId) =>
-        games.withGame(gameId)(connectToGame)(sendGameNotFoundError(conn, gameId))
+        Games.withGame(gameId)(connectToGame)(sendGameNotFoundError(conn, gameId))
       case Message.AddGuess(gameId, guess) =>
-        games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(conn, gameId))
+        Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(conn, gameId))
       case _ =>
         logger.error(s"Invalid message $message")
 
