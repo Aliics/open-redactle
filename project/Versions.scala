@@ -6,5 +6,7 @@ object Versions {
   val javaWebsocket = "1.5.3"
   val scalaLogging = "3.9.5"
   val slf4j = "2.0.5"
+  val jsoup = "1.15.4"
+  val sttp = "3.9.2"
   val scalaTest = "3.2.15"
 }

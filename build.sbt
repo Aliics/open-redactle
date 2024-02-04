@@ -36,6 +36,16 @@ lazy val server = project.in(file("server"))
     ),
   )
 
+lazy val scraper = project.in(file("scraper"))
+  .dependsOn(shared.jvm)
+  .settings(
+    scalaVersion := Versions.scala,
+    libraryDependencies ++= Seq(
+      "org.jsoup" % "jsoup" % Versions.jsoup,
+      "com.softwaremill.sttp.client3" %% "core" % Versions.sttp,
+    ),
+  )
+
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
