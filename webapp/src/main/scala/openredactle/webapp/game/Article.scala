@@ -39,6 +39,7 @@ object Article:
     val typ = initialArticle match
       case ArticleData.Title(words) => h1
       case ArticleData.Header(words) => h2
+      case ArticleData.SubHeader(words) => h3
       case ArticleData.Paragraph(words) => p
 
     typ(
