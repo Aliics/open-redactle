@@ -8,7 +8,7 @@ import scala.jdk.CollectionConverters.*
 @main def main(): Unit =
   val logger = Logger("scraper")
 
-  for a@ArticleData(title, uri) <- fetchRandomArticles(amount = 50) do
+  for a@ArticleInfo(title, uri) <- fetchRandomArticles(amount = 50) do
     val bodyContent = Jsoup.connect(uri.toString)
       .get()
       .getElementById("bodyContent")

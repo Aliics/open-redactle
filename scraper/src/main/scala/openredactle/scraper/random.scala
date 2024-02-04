@@ -11,7 +11,7 @@ private case class RandomResponse(query: RandomQuery)derives Reader
 private case class RandomQuery(random: Seq[RandomInfo])derives Reader
 private case class RandomInfo(id: Int, title: String)derives Reader
 
-def fetchRandomArticles(amount: Int = 10): Seq[ArticleData] =
+def fetchRandomArticles(amount: Int = 10): Seq[ArticleInfo] =
   val backend = HttpClientSyncBackend()
 
   val response: Response[String] = quickRequest
@@ -21,7 +21,7 @@ def fetchRandomArticles(amount: Int = 10): Seq[ArticleData] =
   val RandomQuery(random) = read[RandomResponse](response.body).query
 
   random.map: info =>
-    ArticleData(
+    ArticleInfo(
       title = info.title,
       uri = uri"$baseArticleUrl?curid=${info.id}",
     )
