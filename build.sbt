@@ -43,6 +43,8 @@ lazy val scraper = project.in(file("scraper"))
     libraryDependencies ++= Seq(
       "org.jsoup" % "jsoup" % Versions.jsoup,
       "com.softwaremill.sttp.client3" %% "core" % Versions.sttp,
+      "org.slf4j" % "slf4j-simple" % Versions.slf4j,
+      "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
     ),
   )
 
