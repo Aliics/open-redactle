@@ -11,7 +11,7 @@ private case class RandomResponse(query: RandomQuery)derives Reader
 private case class RandomQuery(random: Seq[RandomInfo])derives Reader
 private case class RandomInfo(id: Int, title: String)derives Reader
 
-def fetchRandomArticles(amount: Int = 10): Seq[ArticleInfo] =
+def fetchRandomArticles(amount: Int): Seq[ArticleInfo] =
   val backend = HttpClientSyncBackend()
 
   val response: Response[String] = quickRequest

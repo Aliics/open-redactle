@@ -1,9 +1,10 @@
 package openredactle.server.games
 
-import openredactle.server.data.{ImplicitLazyLogger, dummyRabbitArticleData, freeWords, randomWords}
+import openredactle.server.data.{dummyRabbitArticleData, freeWords, randomWords}
 import openredactle.server.send
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
+import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.{GuessMatch, NewGuess}
 import org.java_websocket.WebSocket

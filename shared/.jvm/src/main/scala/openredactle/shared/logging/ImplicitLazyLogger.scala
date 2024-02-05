@@ -1,4 +1,4 @@
-package openredactle.server.data
+package openredactle.shared.logging
 
 import com.typesafe.scalalogging.Logger
 

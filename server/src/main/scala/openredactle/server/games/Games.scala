@@ -1,6 +1,6 @@
 package openredactle.server.games
 
-import openredactle.server.data.ImplicitLazyLogger
+import openredactle.shared.logging.ImplicitLazyLogger
 import org.java_websocket.WebSocket
 
 import java.time.Instant

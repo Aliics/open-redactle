@@ -8,5 +8,6 @@ object Versions {
   val slf4j = "2.0.5"
   val jsoup = "1.15.4"
   val sttp = "3.9.2"
+  val awsSdk = "2.23.17"
   val scalaTest = "3.2.15"
 }

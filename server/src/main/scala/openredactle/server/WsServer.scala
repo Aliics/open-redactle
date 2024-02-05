@@ -1,8 +1,8 @@
 package openredactle.server
 
 import com.typesafe.scalalogging.Logger
-import openredactle.server.data.ImplicitLazyLogger
 import openredactle.server.games.{Game, Games}
+import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.{*, given}
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake

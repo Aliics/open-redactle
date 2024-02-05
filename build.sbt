@@ -29,8 +29,6 @@ lazy val server = project.in(file("server"))
     scalaVersion := Versions.scala,
     libraryDependencies ++= Seq(
       "org.java-websocket" % "Java-WebSocket" % Versions.javaWebsocket,
-      "org.slf4j" % "slf4j-simple" % Versions.slf4j,
-      "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
 
       "org.scalatest" %%% "scalatest" % Versions.scalaTest % Test,
     ),
@@ -43,16 +41,22 @@ lazy val scraper = project.in(file("scraper"))
     libraryDependencies ++= Seq(
       "org.jsoup" % "jsoup" % Versions.jsoup,
       "com.softwaremill.sttp.client3" %% "core" % Versions.sttp,
-      "org.slf4j" % "slf4j-simple" % Versions.slf4j,
-      "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
     ),
   )
 
 lazy val shared = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
+  .in(file("shared"))
   .settings(
     scalaVersion := Versions.scala,
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "upickle" % Versions.upickle,
+    ),
+  )
+  .jvmSettings(
+    libraryDependencies ++= Seq(
+      "org.slf4j" % "slf4j-simple" % Versions.slf4j,
+      "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
+      "software.amazon.awssdk" % "s3" % Versions.awsSdk,
     ),
   )
