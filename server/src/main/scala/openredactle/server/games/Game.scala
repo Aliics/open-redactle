@@ -1,12 +1,14 @@
 package openredactle.server.games
 
-import openredactle.server.data.{dummyRabbitArticleData, freeWords, randomWords}
+import openredactle.server.data.{freeWords, randomWords}
 import openredactle.server.send
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
+import openredactle.shared.let
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.{GuessMatch, NewGuess}
+import openredactle.shared.stored.S3Storage
 import org.java_websocket.WebSocket
 
 import java.time.Instant
@@ -14,20 +16,22 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicLong
 import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
-import scala.math.random
+import scala.util.Random
 
 class Game extends ImplicitLazyLogger:
   private[games] val connectedPlayers = ConcurrentLinkedQueue[WebSocket]()
   private[games] val lastDisconnectTime = AtomicLong(Instant.now().toEpochMilli)
 
-  private val fullArticleData = dummyRabbitArticleData
+  private val fullArticleData = let:
+    val indexData = Game.s3Storage.fetchIndex()
+    val (i, _) = indexData(Random.nextInt(indexData.length))
+    Game.s3Storage.getArticleByIndex(i)
 
   val guessedWords: ConcurrentLinkedQueue[Guess] = ConcurrentLinkedQueue[Guess]()
 
   val id: String =
-    def rng = random * (randomWords.length - 1)
     (0 to 2)
-      .map(_ => randomWords(rng.toInt))
+      .map(_ => randomWords(Random.nextInt(randomWords.length)))
       .mkString("-")
 
   def connect(conn: WebSocket): Int =
@@ -64,7 +68,7 @@ class Game extends ImplicitLazyLogger:
         case (word, matches) =>
           broadcast(GuessMatch(word, matches))
 
-  def articleData: List[ArticleData] =
+  def articleData: Seq[ArticleData] =
     fullArticleData.map: articleData =>
       articleData.copy(words = articleData.words.collect:
         case p: Punctuation => p
@@ -81,3 +85,6 @@ class Game extends ImplicitLazyLogger:
       val wordCmp = word compareTo o.word
       if wordCmp != 0 then wordCmp
       else matchedCount compareTo o.matchedCount
+
+object Game:
+  private val s3Storage = S3Storage()

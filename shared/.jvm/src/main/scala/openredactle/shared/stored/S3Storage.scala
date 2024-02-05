@@ -5,7 +5,7 @@ import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.*
-import upickle.default.write
+import upickle.default.{read, write}
 
 import java.nio.charset.Charset
 import scala.language.postfixOps
@@ -17,13 +17,7 @@ class S3Storage(val bucket: String = S3Storage.bucketName):
 
   def fetchIndex(): Seq[(Int, String)] =
     try
-      s3.getObjectAsBytes(
-          GetObjectRequest.builder
-            .bucket(bucket)
-            .key(S3Storage.indexKey)
-            .build,
-        )
-        .asString(Charset.defaultCharset)
+      readS3Object(S3Storage.indexKey)
         .split("\n")
         .collect:
           case s"$n,$u" =>
@@ -32,12 +26,15 @@ class S3Storage(val bucket: String = S3Storage.bucketName):
       Nil
 
   def updateIndex(data: Seq[(Int, String)]): Unit =
-    writeObject(S3Storage.indexKey, data.map((n, u) => s"$n,$u").mkString("\n"))
+    writeS3Object(S3Storage.indexKey, data.map((n, u) => s"$n,$u").mkString("\n"))
 
   def writeArticleData(index: Int, articleData: Seq[ArticleData]): Unit =
-    writeObject(s"${S3Storage.articleObjectsPrefix}/$index", write(articleData))
+    writeS3Object(s"${S3Storage.articleObjectsPrefix}/$index", write(articleData))
 
-  private def writeObject(key: String, body: String): Unit =
+  def getArticleByIndex(index: Int): Seq[ArticleData] =
+    read[Seq[ArticleData]](readS3Object(s"${S3Storage.articleObjectsPrefix}/$index"))
+
+  private def writeS3Object(key: String, body: String): Unit =
     s3.putObject(
       PutObjectRequest.builder
         .bucket(bucket)
@@ -45,6 +42,15 @@ class S3Storage(val bucket: String = S3Storage.bucketName):
         .build,
       RequestBody fromString body,
     )
+
+  private def readS3Object(key: String): String =
+    s3.getObjectAsBytes(
+        GetObjectRequest.builder
+          .bucket(bucket)
+          .key(key)
+          .build,
+      )
+      .asString(Charset.defaultCharset())
 
 object S3Storage:
   val bucketName: String = "open-redactle-article-data"

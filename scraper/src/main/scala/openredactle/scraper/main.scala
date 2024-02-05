@@ -30,7 +30,7 @@ import scala.jdk.CollectionConverters.*
         val articleData = bodyContentElementsToArticleData(bodyContent)
 
         logger.info(s"Article can be saved $a")
-        Some(a -> articleData)
+        Some(a -> (ArticleData.Title(wordsFromString(title)) +: articleData))
       else
         logger.info(s"Article did not contain enough content $a")
         None
