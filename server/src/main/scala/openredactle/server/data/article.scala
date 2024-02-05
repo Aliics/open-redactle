@@ -2,6 +2,7 @@ package openredactle.server.data
 
 import openredactle.shared.data.ArticleData
 import openredactle.shared.data.ArticleData.{Header, Paragraph, Title}
+import openredactle.shared.wordsFromString
 
 val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to", "be")
 

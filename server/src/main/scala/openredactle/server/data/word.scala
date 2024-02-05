@@ -4,26 +4,6 @@ import openredactle.shared.data.Word
 
 import scala.collection.mutable
 
-def wordsFromString(strs: String): Seq[Word] =
-  strs
-    .split(" ")
-    .flatMap: s =>
-      val strs = mutable.ListBuffer[Word]()
-      var current = ""
-      def applyCurrent(hasSpace: Boolean) =
-        if current.nonEmpty then strs += Word.Known(current, hasSpace)
-
-      for (c, i) <- s.zipWithIndex do
-        if c.isLetterOrDigit then current = current + c
-        else
-          applyCurrent(hasSpace = false)
-          strs += Word.Punctuation(c, hasSpace = i == s.length - 1)
-          current = ""
-
-      applyCurrent(hasSpace = true)
-
-      strs.toList
-
 // Thought it would be fun to have a curated list of words for random stuff.
 val randomWords: List[String] = List(
   "alpha", "alex", "andrew", "anthony", "angel", "apple", "android", "apathy",

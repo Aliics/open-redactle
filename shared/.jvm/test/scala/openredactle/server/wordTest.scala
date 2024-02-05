@@ -1,6 +1,7 @@
-package openredactle.server.data
+package openredactle.server
 
 import openredactle.shared.data.Word
+import openredactle.shared.wordsFromString
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
