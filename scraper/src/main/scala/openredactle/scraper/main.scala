@@ -22,8 +22,9 @@ import scala.jdk.CollectionConverters.*
         .get()
         .getElementById("bodyContent")
         .selectXpath("""//div[contains(@class, "mw-content-ltr")]/*[self::h1 or self::h2 or self::h3 or self::p]""")
-        .asScala.filter:
-          _.getElementsByClass("mw-headline").isEmpty
+        .asScala.filter: el =>
+          !Seq("External links", "References", "See also", "Literature cited")
+            .exists(el.text().startsWith(_))
 
       // Needs more than 10 paragraphs of at least tweet length lol.
       if bodyContent.count(_.text().length > 280) > 10 then

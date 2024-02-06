@@ -1,9 +1,5 @@
 package openredactle.server.data
 
-import openredactle.shared.data.Word
-
-import scala.collection.mutable
-
 // Thought it would be fun to have a curated list of words for random stuff.
 val randomWords: List[String] = List(
   "alpha", "alex", "andrew", "anthony", "angel", "apple", "android", "apathy",
