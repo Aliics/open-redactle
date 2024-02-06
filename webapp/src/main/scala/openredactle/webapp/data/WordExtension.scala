@@ -2,7 +2,7 @@ package openredactle.webapp.data
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Word
-import openredactle.webapp.{solidBorder, userSelect}
+import openredactle.webapp.{Colors, solidBorder, userSelect}
 
 extension (word: Word)
   def renderElement(selectedGuessSignal: Signal[Option[String]]): Element =
@@ -17,7 +17,7 @@ extension (word: Word)
             if !isSelected then span(str)
             else span(
               borderBottom := solidBorder(),
-              backgroundColor := "gainsboro",
+              backgroundColor := Colors.highlightedWord,
               str,
             )
 

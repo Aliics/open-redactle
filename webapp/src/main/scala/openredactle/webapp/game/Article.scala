@@ -17,6 +17,7 @@ object Article:
       flexGrow := 1,
       overflowY := "scroll",
       fontFamily := "monospace",
+      fontSize := "16px",
       padding := "0 1rem",
 
       renderArticleData,
@@ -39,7 +40,7 @@ object Article:
 
   private def renderArticleData(index: Int, initialArticle: ArticleData, articleDataSignal: Signal[ArticleData]): Element =
     val inner = Seq(
-      lineHeight := "1.1rem",
+      lineHeight := "1.5rem",
 
       children <-- articleDataSignal.map:
         _.words.map(_.renderElement(selectedGuess.signal)),

@@ -7,12 +7,14 @@ import org.scalajs.dom.{MouseEvent, window}
 import scala.scalajs.js.timers.setTimeout
 
 object StatusBar:
-  private val copyButtonPromptText = "Copy Link"
-  private val copyButtonDoneText = "Link Copied!"
+  private val copyLinkButtonPromptText = "Copy Link"
+  private val copyIdButtonPromptText = "Copy ID"
+  private val copyButtonDoneText = "Copied!"
 
   val playerCount: Var[Int] = Var(0)
 
-  private val copyButtonText = Var(copyButtonPromptText)
+  private val copyLinkButtonText = Var(copyLinkButtonPromptText)
+  private val copyIdButtonText = Var(copyIdButtonPromptText)
 
   def renderElement: Element =
     div(
@@ -24,22 +26,38 @@ object StatusBar:
 
       a(
         child.text <-- Game.gameId.signal.map(_ getOrElse ""),
-        button(
-          buttonStyle(),
-
-          onClick --> copyShareUrl,
-
-          child.text <-- copyButtonText,
+        copyButton(
+          copyIdButtonText,
+          copyIdButtonPromptText,
+          Game.gameId.now().get,
+        ),
+        copyButton(
+          copyLinkButtonText,
+          copyLinkButtonPromptText,
+          s"${window.location.host}/game/${Game.gameId.now().get}",
         ),
       ),
 
       span(child.text <-- playerCount.signal.map(c => s"Players: $c")),
     )
 
-  private def copyShareUrl(_e: MouseEvent): Unit =
-    val shareUrl = s"${window.location.host}/${Game.gameId.now().get}"
+  private def copyButton(textVar: Var[String], promptText: String, shareUrl: => String): Element =
+    button(
+      buttonStyle(),
+      width := "5rem",
+
+      onClick --> copyShare(
+        textVar,
+        promptText,
+        shareUrl,
+      ),
+
+      child.text <-- textVar,
+    )
+
+  private def copyShare(textVar: Var[String], text: String, shareUrl: => String)(_e: MouseEvent): Unit =
     window.navigator.clipboard.writeText(shareUrl)
 
-    copyButtonText.update(_ => copyButtonDoneText)
+    textVar.update(_ => copyButtonDoneText)
     setTimeout(500):
-      copyButtonText.update(_ => copyButtonPromptText)
+      textVar.update(_ => text)

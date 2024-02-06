@@ -8,24 +8,24 @@ import upickle.default.{read, write}
 
 import scala.scalajs.js
 
-def connectWs(): WebSocket =
+def connectWs(gameId: Option[String] = None): WebSocket =
   val ws = WebSocket("ws://localhost:8080/", "ws")
 
   ws.onerror = _ =>
     Errors.show("Could not connect to server.")
 
   ws.onopen = _ =>
-    window.location.pathname.stripPrefix("/") match
-      case "" =>
-        ws.send(write(Message.StartGame()))
-      case gameId =>
+    gameId match
+      case Some(gameId) =>
         ws.send(write(Message.JoinGame(gameId)))
+      case None =>
+        ws.send(write(Message.StartGame()))
 
   ws.onmessage = msg =>
     val message = read[Message](msg.data.asInstanceOf[String])
     message match
       case Message.GameState(gameId, playerCount, articleData, guesses) =>
-        window.history.replaceState((), "", gameId) // Make url match nicely. :)
+        window.history.replaceState((), "", s"/game/$gameId") // Make url match nicely. :)
 
         Game.gameId.update(_ => Some(gameId))
         StatusBar.playerCount.update(_ => playerCount)

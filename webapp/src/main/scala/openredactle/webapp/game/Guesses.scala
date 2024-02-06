@@ -1,7 +1,7 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{buttonStyle, solidBorder}
+import openredactle.webapp.{Colors, buttonStyle, layoutFlex, solidBorder}
 
 object Guesses:
   private type Guess = (String, Int)
@@ -12,8 +12,7 @@ object Guesses:
     div(
       width := "22rem",
       height := "100%",
-      display := "flex",
-      flexDirection := "column",
+      layoutFlex("column"),
       borderLeft := solidBorder(),
 
       renderGuessForm,
@@ -41,7 +40,7 @@ object Guesses:
     val guessInput = Var("")
 
     form(
-      display := "flex",
+      layoutFlex(),
       padding := "1rem",
       borderBottom := solidBorder(),
 
@@ -65,7 +64,7 @@ object Guesses:
 
   private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]): Element =
     div(
-      display := "flex",
+      layoutFlex(),
       alignItems := "center",
       borderBottom := solidBorder(),
       minWidth := "fit-content",
@@ -73,10 +72,16 @@ object Guesses:
       padding := "0.25rem",
       cursor := "pointer",
 
+      backgroundColor <--
+        Article.selectedGuess.signal.map:
+          case Some(sel) if sel == initial._1 =>
+            Colors.highlightedWord
+          case _ => "#f1f1f1",
+
       onClick --> { _ =>
         Article.selectedGuess.update:
-          case Some(_) => None
-          case None => Some(initial._1)
+          case Some(sel) if sel == initial._1 => None
+          case _ => Some(initial._1)
       },
 
       span(
@@ -87,7 +92,7 @@ object Guesses:
         index + 1,
       ),
       div(
-        display := "flex",
+        layoutFlex(),
         justifyContent := "space-between",
         width := "100%",
 
