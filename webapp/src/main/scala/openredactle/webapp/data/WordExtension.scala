@@ -37,7 +37,7 @@ extension (word: Word)
               lengthStr + nbsp.repeat(length - lengthStr.length)
 
         val blockedElement = span(
-          backgroundColor := "black",
+          backgroundColor := Colors.black,
           color := "white",
           userSelect := "none",
           cursor := "pointer",

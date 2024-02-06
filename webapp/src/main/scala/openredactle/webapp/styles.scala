@@ -5,16 +5,16 @@ import com.raquo.laminar.modifiers.KeySetter
 
 val userSelect: StyleProp[String] = styleProp("user-select")
 
-def solidBorder(color: String = "black"): String =
-  s"$color 1px solid"
+def solidBorder(color: String = Colors.black): String =
+  s"solid 1px $color"
 
-def buttonStyle(fgColor: String = "white", bgColor: String = "black"): Seq[KeySetter.StyleSetter] =
+def buttonStyle(fgColor: String = Colors.white, bgColor: String = Colors.black): Seq[KeySetter.StyleSetter] =
   Seq(
     cursor := "pointer",
     color := fgColor,
     backgroundColor := bgColor,
     marginLeft := "0.5rem",
-    border := solidBorder(fgColor),
+    border := "none",
     padding := "0.25rem 0.5rem",
   )
 
@@ -36,4 +36,8 @@ def layoutFlex(direction: String = "default"): Seq[KeySetter.StyleSetter] =
   )
 
 object Colors:
+  val black = "rgb(25, 25, 25)"
+  val white = "rgb(250, 250, 250)"
+  val mainBackground = "rgb(250, 250, 250)"
   val highlightedWord = "rgb(172, 208, 240)"
+  val danger = "rgb(200, 0, 0)"

@@ -1,7 +1,7 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.centeredScreen
+import openredactle.webapp.{Colors, centeredScreen}
 import org.scalajs.dom
 
 object Errors:
@@ -10,8 +10,8 @@ object Errors:
       dom.document.getElementById("app"),
       div(
         centeredScreen,
-        color := "white",
-        backgroundColor := "black",
+        color := Colors.white,
+        backgroundColor := Colors.black,
 
         h1("Oh noes!"),
         p(errorMessage),

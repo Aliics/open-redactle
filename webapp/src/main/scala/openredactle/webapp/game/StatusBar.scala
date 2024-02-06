@@ -1,7 +1,7 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{buttonStyle, solidBorder}
+import openredactle.webapp.{Colors, buttonStyle, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
@@ -36,12 +36,17 @@ object StatusBar:
           copyLinkButtonPromptText,
           s"${window.location.host}/game/${Game.gameId.now().get}",
         ),
+        button(
+          buttonStyle(bgColor = Colors.danger),
+          onClick --> (_ => window.location.href = "/"),
+          "Leave Game",
+        ),
       ),
 
       span(child.text <-- playerCount.signal.map(c => s"Players: $c")),
     )
 
-  private def copyButton(textVar: Var[String], promptText: String, shareUrl: => String): Element =
+  private def copyButton(textVar: Var[String], promptText: String, shareUrl: => String) =
     button(
       buttonStyle(),
       width := "5rem",

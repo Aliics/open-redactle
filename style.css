@@ -3,3 +3,7 @@ body, #app {
     height: 100vh;
     overflow: hidden;
 }
+
+input {
+    height: 19px;
+}

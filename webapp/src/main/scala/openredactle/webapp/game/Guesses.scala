@@ -36,7 +36,7 @@ object Guesses:
       ),
     )
 
-  private def renderGuessForm: Element =
+  private def renderGuessForm =
     val guessInput = Var("")
 
     form(
@@ -53,6 +53,8 @@ object Guesses:
         flexGrow := 1,
         minWidth := "16rem",
 
+        placeholder := "Guess a word",
+
         value <-- guessInput,
         onInput.mapToValue --> guessInput,
       ),
@@ -62,7 +64,7 @@ object Guesses:
       ),
     )
 
-  private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]): Element =
+  private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]) =
     div(
       layoutFlex(),
       alignItems := "center",
