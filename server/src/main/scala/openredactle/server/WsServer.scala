@@ -12,7 +12,7 @@ import upickle.default.read
 import java.net.InetSocketAddress
 import scala.jdk.CollectionConverters.*
 
-object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLazyLogger:
+object WsServer extends WebSocketServer(InetSocketAddress(8081)) with ImplicitLazyLogger:
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
     logger.info(s"New connection: ${conn.getRemoteSocketAddress}")
 

@@ -1,13 +1,13 @@
 package openredactle.server.games
 
 import openredactle.server.data.{freeWords, randomWords}
-import openredactle.server.send
+import openredactle.server.{send, random}
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.let
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
-import openredactle.shared.message.Message.{GuessMatch, NewGuess}
+import openredactle.shared.message.Message.{GameWon, GuessMatch, NewGuess}
 import openredactle.shared.stored.S3Storage
 import org.java_websocket.WebSocket
 
@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicLong
 import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
-import scala.util.Random
 
 class Game extends ImplicitLazyLogger:
   private[games] val connectedPlayers = ConcurrentLinkedQueue[WebSocket]()
@@ -24,14 +23,14 @@ class Game extends ImplicitLazyLogger:
 
   private val fullArticleData = let:
     val indexData = Game.s3Storage.fetchIndex()
-    val (i, _) = indexData(Random.nextInt(indexData.length))
+    val (i, _) = indexData.random
     Game.s3Storage.getArticleByIndex(i)
 
   val guessedWords: ConcurrentLinkedQueue[Guess] = ConcurrentLinkedQueue[Guess]()
 
   val id: String =
     (0 to 2)
-      .map(_ => randomWords(Random.nextInt(randomWords.length)))
+      .map(_ => randomWords.random)
       .mkString("-")
 
   def connect(conn: WebSocket): Int =
@@ -63,10 +62,14 @@ class Game extends ImplicitLazyLogger:
       val matchedCount = matches.map(_._2.map(_._2.length).sum).sum
 
       guessedWords.add(Guess(guess, matchedCount))
-      broadcast(NewGuess(guess, matchedCount))
-      matches.foreach:
-        case (word, matches) =>
-          broadcast(GuessMatch(word, matches))
+
+      if !articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
+        broadcast(GameWon(fullArticleData))
+      else
+        broadcast(NewGuess(guess, matchedCount))
+        matches.foreach:
+          case (word, matches) =>
+            broadcast(GuessMatch(word, matches))
 
   def articleData: Seq[ArticleData] =
     fullArticleData.map: articleData =>

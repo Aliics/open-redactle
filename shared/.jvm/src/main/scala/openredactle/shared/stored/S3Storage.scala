@@ -29,11 +29,12 @@ class S3Storage(val bucket: String = S3Storage.bucketName):
     writeS3Object(S3Storage.indexKey, data.map((n, u) => s"$n,$u").mkString("\n"))
 
   def writeArticleData(index: Int, articleData: Seq[ArticleData]): Unit =
-    writeS3Object(s"${S3Storage.articleObjectsPrefix}/$index", write(articleData))
+    writeS3Object(S3Storage.indexObjectPath(index), write(articleData))
 
   def getArticleByIndex(index: Int): Seq[ArticleData] =
-    read[Seq[ArticleData]](readS3Object(s"${S3Storage.articleObjectsPrefix}/$index"))
+    read[Seq[ArticleData]](readS3Object(S3Storage.indexObjectPath(index)))
 
+  
   private def writeS3Object(key: String, body: String): Unit =
     s3.putObject(
       PutObjectRequest.builder
@@ -53,6 +54,9 @@ class S3Storage(val bucket: String = S3Storage.bucketName):
       .asString(Charset.defaultCharset())
 
 object S3Storage:
-  val bucketName: String = "open-redactle-article-data"
-  val indexKey: String = "index"
-  val articleObjectsPrefix: String = "articles"
+  private val bucketName: String = "open-redactle-article-data"
+  private val indexKey: String = "index"
+  private val articleObjectsPrefix: String = "articles"
+
+  private def indexObjectPath(index: Int) =
+    s"${S3Storage.articleObjectsPrefix}/$index"
