@@ -9,7 +9,7 @@ import upickle.default.{read, write}
 import scala.scalajs.js
 
 def connectWs(): WebSocket =
-  val ws = WebSocket("ws://localhost:8081/", "ws")
+  val ws = WebSocket("ws://localhost:8080/", "ws")
 
   ws.onerror = _ =>
     Errors.show("Could not connect to server.")

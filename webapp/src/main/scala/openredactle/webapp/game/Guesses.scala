@@ -71,6 +71,13 @@ object Guesses:
       minWidth := "fit-content",
       fontSize := "14px",
       padding := "0.25rem",
+      cursor := "pointer",
+
+      onClick --> { _ =>
+        Article.selectedGuess.update:
+          case Some(_) => None
+          case None => Some(initial._1)
+      },
 
       span(
         fontSize := "13px",

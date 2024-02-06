@@ -5,9 +5,11 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.webapp.data.renderElement
+import openredactle.webapp.solidBorder
 
 object Article:
   val articleData: Var[Seq[ArticleData]] = Var(Nil)
+  val selectedGuess: Var[Option[String]] = Var(None)
 
   def renderElement: Element =
     div(
@@ -36,15 +38,15 @@ object Article:
       children <-- articleData.signal.splitByIndex(renderArticleData)
 
   private def renderArticleData(index: Int, initialArticle: ArticleData, articleDataSignal: Signal[ArticleData]): Element =
-    val typ = initialArticle match
-      case ArticleData.Title(words) => h1
-      case ArticleData.Header(words) => h2
-      case ArticleData.SubHeader(words) => h3
-      case ArticleData.Paragraph(words) => p
-
-    typ(
+    val inner = Seq(
       lineHeight := "1.1rem",
 
       children <-- articleDataSignal.map:
-        _.words.map(_.renderElement),
+        _.words.map(_.renderElement(selectedGuess.signal)),
     )
+
+    initialArticle match
+      case ArticleData.Title(words) => h1(borderBottom := solidBorder(), inner)
+      case ArticleData.Header(words) => h2(borderBottom := solidBorder(), inner)
+      case ArticleData.SubHeader(words) => h3(inner)
+      case ArticleData.Paragraph(words) => p(inner)

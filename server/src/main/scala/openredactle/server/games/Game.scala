@@ -1,7 +1,7 @@
 package openredactle.server.games
 
 import openredactle.server.data.{freeWords, randomWords}
-import openredactle.server.{send, random}
+import openredactle.server.{random, send}
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.let
@@ -13,7 +13,7 @@ import org.java_websocket.WebSocket
 
 import java.time.Instant
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicLong}
 import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 
@@ -21,6 +21,7 @@ class Game extends ImplicitLazyLogger:
   private[games] val connectedPlayers = ConcurrentLinkedQueue[WebSocket]()
   private[games] val lastDisconnectTime = AtomicLong(Instant.now().toEpochMilli)
 
+  private val gameWon = AtomicBoolean(false)
   private val fullArticleData = let:
     val indexData = Game.s3Storage.fetchIndex()
     val (i, _) = indexData.random
@@ -48,7 +49,8 @@ class Game extends ImplicitLazyLogger:
 
   def addGuess(guess: String): Unit =
     val alreadyGuessed = guessedWords.asScala.exists(_._1 == guess)
-    if !guess.isBlank && !alreadyGuessed then
+    val isFreeWord = freeWords.exists(_ equalsIgnoreCase  guess)
+    if !guess.isBlank && !isFreeWord && !alreadyGuessed then
       val matches = fullArticleData.map: articleData =>
         articleData.words.zipWithIndex.collect:
           case (known: Known, idx) if known.str equalsIgnoreCase guess => known -> idx
@@ -63,23 +65,26 @@ class Game extends ImplicitLazyLogger:
 
       guessedWords.add(Guess(guess, matchedCount))
 
-      if !articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
-        broadcast(GameWon(fullArticleData))
-      else
+      if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
         broadcast(NewGuess(guess, matchedCount))
         matches.foreach:
           case (word, matches) =>
             broadcast(GuessMatch(word, matches))
+      else
+        broadcast(GameWon(fullArticleData))
+        gameWon.set(true)
 
   def articleData: Seq[ArticleData] =
-    fullArticleData.map: articleData =>
-      articleData.copy(words = articleData.words.collect:
-        case p: Punctuation => p
-        case known@Known(str, hasSpace) =>
-          val matchedGuessedWords = guessedWords.asScala.filter(_.matchedCount > 0).map(_._1)
-          if (freeWords ++ matchedGuessedWords).exists(_ equalsIgnoreCase str) then known
-          else Unknown(str.length, hasSpace)
-      )
+    if gameWon.get() then fullArticleData
+    else
+      fullArticleData.map: articleData =>
+        articleData.copy(words = articleData.words.collect:
+          case p: Punctuation => p
+          case known@Known(str, hasSpace) =>
+            val matchedGuessedWords = guessedWords.asScala.filter(_.matchedCount > 0).map(_._1)
+            if (freeWords ++ matchedGuessedWords).exists(_ equalsIgnoreCase str) then known
+            else Unknown(str.length, hasSpace)
+        )
 
   // Needed so Comparable can be implemented.
   // We use a ConcurrentSkipListSet, which needs all elements to implement it.

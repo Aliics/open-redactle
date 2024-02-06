@@ -2,16 +2,29 @@ package openredactle.webapp.data
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Word
-import openredactle.webapp.userSelect
+import openredactle.webapp.{solidBorder, userSelect}
 
 extension (word: Word)
-  def renderElement: Element =
+  def renderElement(selectedGuessSignal: Signal[Option[String]]): Element =
     def spaceNodeWhen(cond: => Boolean): Node = if cond then " " else emptyNode
     word match
       case Word.Punctuation(c, hasSpace) =>
         span(c.toString, spaceNodeWhen(hasSpace))
       case Word.Known(str, hasSpace) =>
-        span(str, spaceNodeWhen(hasSpace))
+        def renderText =
+          selectedGuessSignal.map: selectedGuess =>
+            val isSelected = str equalsIgnoreCase selectedGuess.getOrElse("")
+            if !isSelected then span(str)
+            else span(
+              borderBottom := solidBorder(),
+              backgroundColor := "gainsboro",
+              str,
+            )
+
+        span(
+          child <-- renderText,
+          spaceNodeWhen(hasSpace),
+        )
       case Word.Unknown(length, hasSpace) =>
         val showingLength = Var(false)
 
