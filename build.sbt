@@ -31,7 +31,7 @@ lazy val server = project.in(file("server"))
     libraryDependencies ++= Seq(
       "org.java-websocket" % "Java-WebSocket" % Versions.javaWebsocket,
 
-      "org.scalatest" %%% "scalatest" % Versions.scalaTest % Test,
+      "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
     ),
   )
 
@@ -57,5 +57,7 @@ lazy val shared = crossProject(JSPlatform, JVMPlatform)
       "org.slf4j" % "slf4j-simple" % Versions.slf4j,
       "com.typesafe.scala-logging" %% "scala-logging" % Versions.scalaLogging,
       "software.amazon.awssdk" % "s3" % Versions.awsSdk,
+
+      "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
     ),
   )

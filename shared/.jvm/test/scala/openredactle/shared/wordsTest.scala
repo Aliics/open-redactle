@@ -1,11 +1,11 @@
-package openredactle.server
+package openredactle.shared
 
 import openredactle.shared.data.Word
-import openredactle.shared.wordsFromString
+import openredactle.shared.{wordsFromString, roughEquals}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-class wordTest extends AnyFunSuite with Matchers:
+class wordsTest extends AnyFunSuite with Matchers:
   test("one word should create one Known Word"):
     wordsFromString("bunny") shouldBe Seq(Word.Known("bunny", true))
 
@@ -36,3 +36,20 @@ class wordTest extends AnyFunSuite with Matchers:
       Word.Known("number", true),
       Word.Known("2", true),
     )
+
+  test("should match plurals"):
+    roughEquals("alex")("alexs") shouldBe true
+    roughEquals("alexs")("alex") shouldBe true
+    roughEquals("alex")("alexes") shouldBe true
+    roughEquals("alexes")("alex") shouldBe true
+    roughEquals("alex's")("alex") shouldBe true
+    roughEquals("alex")("alex's") shouldBe true
+    roughEquals("alexs")("alex's") shouldBe true
+    roughEquals("alexes")("alex's") shouldBe true
+    roughEquals("alex")("alex") shouldBe true
+
+  test("the y and ies plurals"):
+    roughEquals("silly")("sillies") shouldBe true
+    roughEquals("sillies")("silly") shouldBe true
+    roughEquals("sillies")("sillies") shouldBe true
+    roughEquals("silly")("silly") shouldBe true

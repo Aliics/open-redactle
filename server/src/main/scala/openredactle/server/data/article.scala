@@ -1,8 +1,8 @@
 package openredactle.server.data
 
-import openredactle.shared.data.ArticleData
+import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.data.ArticleData.{Header, Paragraph, Title}
-import openredactle.shared.wordsFromString
+import openredactle.shared.{data, roughEquals, wordsFromString}
 
 val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to", "be", "s")
 
@@ -27,3 +27,19 @@ val dummyRabbitArticleData: List[ArticleData] =
     Header(wordsFromString("Terminology")),
     Paragraph(wordsFromString("Male rabbits are called bucks; females are called does. An older term for an adult rabbit is coney, while rabbit once referred only to the young animals.[16] Another term for a young rabbit is bunny, though this term is often applied informally (especially by children and rabbit enthusiasts) to rabbits generally, especially domestic ones. More recently, the term kit or kitten has been used to refer to a young rabbit. A young hare is called a leveret; this term is sometimes informally applied to a young rabbit as well. A group of rabbits is known as a \"colony\" or a \"nest\".[17] House rabbit enthusiasts may call their group of house rabbits a \"fluffle\".")),
   )
+
+def getMatchingGuessData(fullArticleData: Seq[ArticleData])(guess: String): (Map[Word.Known, Seq[(Int, Seq[Int])]], Int) =
+  val matches = fullArticleData.map: articleData =>
+    articleData.words.zipWithIndex.collect:
+      case (known: Word.Known, idx) if roughEquals(known.str)(guess) => known -> idx
+  .map(_.groupMap(_._1)(_._2))
+  .zipWithIndex
+  .filter(_._1.nonEmpty)
+  .flatMap: (strs, i) =>
+    strs.map((s, is) => s -> (i, is))
+  .groupMap(_._1)(_._2)
+
+  val matchedCount = matches.map(_._2.map(_._2.length).sum).sum
+
+  matches -> matchedCount
+  

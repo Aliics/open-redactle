@@ -51,7 +51,9 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
 
   override def onStart(): Unit =
     logger.info("WS started")
+    setReuseAddr(true)
     setConnectionLostTimeout(0)
+    setConnectionLostTimeout(60)
 
   private def sendGameNotFoundError(conn: WebSocket, attemptedGameId: String): Unit =
     conn.send(Message.Error(s"Game not found with ID: $attemptedGameId"))

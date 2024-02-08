@@ -2,6 +2,7 @@ package openredactle.webapp.data
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Word
+import openredactle.shared.roughEquals
 import openredactle.webapp.{Colors, solidBorder, userSelect}
 
 extension (word: Word)
@@ -13,7 +14,7 @@ extension (word: Word)
       case Word.Known(str, hasSpace) =>
         def renderText =
           selectedGuessSignal.map: selectedGuess =>
-            val isSelected = str equalsIgnoreCase selectedGuess.getOrElse("")
+            val isSelected = roughEquals(str)(selectedGuess.getOrElse(""))
             if !isSelected then span(str)
             else span(
               borderBottom := solidBorder(),

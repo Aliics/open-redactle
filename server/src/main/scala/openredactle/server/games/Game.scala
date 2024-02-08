@@ -1,14 +1,14 @@
 package openredactle.server.games
 
-import openredactle.server.data.{freeWords, randomWords}
+import openredactle.server.data.{freeWords, getMatchingGuessData, randomWords}
 import openredactle.server.{random, send}
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
-import openredactle.shared.let
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.{GameWon, GuessMatch, NewGuess}
 import openredactle.shared.stored.S3Storage
+import openredactle.shared.{let, roughEquals}
 import org.java_websocket.WebSocket
 
 import java.time.Instant
@@ -24,7 +24,8 @@ class Game extends ImplicitLazyLogger:
   private val gameWon = AtomicBoolean(false)
   private val fullArticleData = let:
     val indexData = Game.s3Storage.fetchIndex()
-    val (i, _) = indexData.random
+    val r@(i, _) = indexData.random
+    logger.info(s"Selected article: $r")
     Game.s3Storage.getArticleByIndex(i)
 
   val guessedWords: ConcurrentLinkedQueue[Guess] = ConcurrentLinkedQueue[Guess]()
@@ -48,20 +49,10 @@ class Game extends ImplicitLazyLogger:
     connectedPlayers.asScala.foreach(_.send(message))
 
   def addGuess(guess: String): Unit =
-    val alreadyGuessed = guessedWords.asScala.exists(_._1 == guess)
-    val isFreeWord = freeWords.exists(_ equalsIgnoreCase  guess)
+    val alreadyGuessed = guessedWords.asScala.exists(g => roughEquals(g._1)(guess))
+    val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
     if !guess.isBlank && !isFreeWord && !alreadyGuessed then
-      val matches = fullArticleData.map: articleData =>
-        articleData.words.zipWithIndex.collect:
-          case (known: Known, idx) if known.str equalsIgnoreCase guess => known -> idx
-      .map(_.groupMap(_._1)(_._2))
-      .zipWithIndex
-      .filter(_._1.nonEmpty)
-      .flatMap: (strs, i) =>
-        strs.map((s, is) => s -> (i, is))
-      .groupMap(_._1)(_._2)
-
-      val matchedCount = matches.map(_._2.map(_._2.length).sum).sum
+      val (matches, matchedCount) = getMatchingGuessData(fullArticleData)(guess)
 
       guessedWords.add(Guess(guess, matchedCount))
 
@@ -82,7 +73,7 @@ class Game extends ImplicitLazyLogger:
           case p: Punctuation => p
           case known@Known(str, hasSpace) =>
             val matchedGuessedWords = guessedWords.asScala.filter(_.matchedCount > 0).map(_._1)
-            if (freeWords ++ matchedGuessedWords).exists(_ equalsIgnoreCase str) then known
+            if (freeWords ++ matchedGuessedWords).exists(roughEquals(_)(str)) then known
             else Unknown(str.length, hasSpace)
         )
 
