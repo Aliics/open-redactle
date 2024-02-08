@@ -24,6 +24,15 @@ object StartMenu:
         renderDividingElement,
         renderStartElement,
       ),
+      a(
+        href := "https://github.com/Aliics/open-redactle",
+        fontSize := "12px",
+        marginTop := "1rem",
+        padding := "0.5rem 0",
+        border := solidBorder(),
+
+        "github.com/aliics/openredactle",
+      ),
     )
 
   private def renderJoinFormElement =
@@ -55,7 +64,7 @@ object StartMenu:
         "Start",
       ),
     )
-    
+
   private def renderDividingElement =
     div(
       borderLeft := solidBorder(),
