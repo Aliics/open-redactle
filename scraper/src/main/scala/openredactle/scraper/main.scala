@@ -17,13 +17,13 @@ import scala.jdk.CollectionConverters.*
   val indexData = s3Storage.fetchIndex()
 
   val articlesInfoContents = (
-    for a@ArticleInfo(title, uri) <- fetchRandomArticles(amount = 50) yield
+    for a@ArticleInfo(title, uri) <- fetchRandomArticles(amount = 500) yield
       val bodyContent = Jsoup.connect(uri.toString)
         .get()
         .getElementById("bodyContent")
         .selectXpath("""//div[contains(@class, "mw-content-ltr")]/*[self::h1 or self::h2 or self::h3 or self::p]""")
         .asScala.filter: el =>
-          !Seq("External links", "References", "See also", "Literature cited")
+          !Seq("External links", "References", "See also", "Literature cited", "Notes")
             .exists(el.text().startsWith(_))
 
       // Needs more than 10 paragraphs of at least tweet length lol.
@@ -31,22 +31,26 @@ import scala.jdk.CollectionConverters.*
         val articleData = bodyContentElementsToArticleData(bodyContent)
 
         logger.info(s"Article can be saved $a")
-        Some(a -> (ArticleData.Title(wordsFromString(title)) +: articleData))
+        val existingIndex = indexData.find(_._2 == uri.toString).map(_._1)
+        val articleDataWithTitle = ArticleData.Title(wordsFromString(title)) +: articleData
+        Some((a, articleDataWithTitle, existingIndex))
       else
         logger.info(s"Article did not contain enough content $a")
         None
     )
     .flatten
+    .distinctBy(_._1) // Rare chance we get the same article using random.
     .zipWithIndex.map:
-      case ((a, d), i) => (i + indexData.length, a, d)
+      case ((a, d, e), i) => (i + indexData.length, a, d, e)
 
   logger.info(s"Writing ${articlesInfoContents.length} items to index")
   s3Storage.updateIndex:
-    indexData ++ articlesInfoContents.map(a => a._1 -> a._2.uri.toString)
+    indexData ++ articlesInfoContents.collect:
+      case (i, ArticleInfo(_, uri), _, None) => i -> uri.toString
 
   logger.info(s"Writing ${articlesInfoContents.length} items as s3 objects")
-  for (i, _, articleData) <- articlesInfoContents do
-    s3Storage.writeArticleData(i, articleData)
+  for (i, _, articleData, existingIndex) <- articlesInfoContents do
+    s3Storage.writeArticleData(existingIndex getOrElse i, articleData)
 end main
 
 private def bodyContentElementsToArticleData(bodyContent: mutable.Buffer[Element]) =
