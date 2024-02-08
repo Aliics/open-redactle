@@ -1,14 +1,14 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{Colors, buttonStyle, layoutFlex, solidBorder}
+import openredactle.webapp.*
 
 object Guesses:
   private type Guess = (String, Int)
 
   val guessedWords: Var[List[Guess]] = Var(List())
 
-  def renderElement: Element =
+  lazy val renderElement: Element =
     div(
       width := "22rem",
       height := "100%",
@@ -65,6 +65,8 @@ object Guesses:
     )
 
   private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]) =
+    val guessed = initial._1
+    val isCorrectGuess = initial._2 > 0
     div(
       layoutFlex(),
       alignItems := "center",
@@ -72,18 +74,23 @@ object Guesses:
       minWidth := "fit-content",
       fontSize := "14px",
       padding := "0.25rem",
-      cursor := "pointer",
+      cursor := (if isCorrectGuess then "pointer" else "default"),
+      userSelect := "none",
 
       backgroundColor <--
         Article.selectedGuess.signal.map:
-          case Some(sel) if sel == initial._1 =>
+          case Some(sel) if sel == guessed =>
             Colors.highlightedWord
-          case _ => "#f1f1f1",
+          case _ =>
+            if isCorrectGuess then Colors.correctWord
+            else Colors.mainBackground
+            ,
 
-      onClick --> { _ =>
-        Article.selectedGuess.update:
-          case Some(sel) if sel == initial._1 => None
-          case _ => Some(initial._1)
+        onClick --> { _ =>
+        if isCorrectGuess then
+          Article.selectedGuess.update:
+            case Some(sel) if sel == guessed => None
+            case _ => Some(guessed)
       },
 
       span(

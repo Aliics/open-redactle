@@ -47,6 +47,8 @@ class wordsTest extends AnyFunSuite with Matchers:
     roughEquals("alexs")("alex's") shouldBe true
     roughEquals("alexes")("alex's") shouldBe true
     roughEquals("alex")("alex") shouldBe true
+    roughEquals("s")("") shouldBe false
+    roughEquals("")("s") shouldBe false
 
   test("the y and ies plurals"):
     roughEquals("silly")("sillies") shouldBe true

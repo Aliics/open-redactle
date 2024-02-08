@@ -16,7 +16,7 @@ object StatusBar:
   private val copyLinkButtonText = Var(copyLinkButtonPromptText)
   private val copyIdButtonText = Var(copyIdButtonPromptText)
 
-  def renderElement: Element =
+  lazy val renderElement: Element =
     div(
       borderTop := solidBorder(),
       display := "flex",
@@ -43,7 +43,10 @@ object StatusBar:
         ),
       ),
 
-      span(child.text <-- playerCount.signal.map(c => s"Players: $c")),
+      span(
+        fontSize := "14px",
+        child.text <-- playerCount.signal.map(c => s"Players: $c"),
+      ),
     )
 
   private def copyButton(textVar: Var[String], promptText: String, shareUrl: => String) =

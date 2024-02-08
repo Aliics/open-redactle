@@ -24,7 +24,7 @@ object Game:
     gameConnection.now().foreach: ws =>
       ws.send(write(Message.AddGuess(gameId.now().get, guess)))
 
-  def renderElement: Element =
+  lazy val renderElement: Element =
     div(
       layoutFlex("column"),
       height := "100vh",

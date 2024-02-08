@@ -1,17 +1,17 @@
 package openredactle.webapp.game
 
+import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.{ArticleData, Word}
-import openredactle.webapp.data.renderElement
 import openredactle.webapp.solidBorder
 
 object Article:
   val articleData: Var[Seq[ArticleData]] = Var(Nil)
   val selectedGuess: Var[Option[String]] = Var(None)
 
-  def renderElement: Element =
+  lazy val renderElement: Element =
     div(
       height := "100%",
       flexGrow := 1,
@@ -43,7 +43,7 @@ object Article:
       lineHeight := "1.5rem",
 
       children <-- articleDataSignal.map:
-        _.words.map(_.renderElement(selectedGuess.signal)),
+        _.words.map(renderWordElement(selectedGuess.signal)(_)),
     )
 
     initialArticle match

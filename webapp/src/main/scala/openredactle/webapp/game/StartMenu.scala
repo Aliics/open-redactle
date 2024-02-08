@@ -6,7 +6,7 @@ import openredactle.webapp.*
 object StartMenu:
   private val gameIdInput = Var("")
 
-  def renderElement: Element =
+  lazy val renderElement: Element =
     div(
       layoutFlex("column"),
       alignSelf := "center",

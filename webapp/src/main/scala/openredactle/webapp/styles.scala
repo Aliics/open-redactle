@@ -40,4 +40,5 @@ object Colors:
   val white = "rgb(250, 250, 250)"
   val mainBackground = "rgb(250, 250, 250)"
   val highlightedWord = "rgb(172, 208, 240)"
+  val correctWord = "rgb(223, 245, 255)"
   val danger = "rgb(200, 0, 0)"

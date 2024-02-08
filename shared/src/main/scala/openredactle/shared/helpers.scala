@@ -7,7 +7,9 @@ def roughEquals(left: String)(right: String) =
     val matching =
       for a <- suffixes
           b <- suffixes
-      yield left.stripSuffix(a) equalsIgnoreCase right.stripSuffix(b)
+      yield !(left equalsIgnoreCase a)
+        && !(right equalsIgnoreCase b)
+        && (left.stripSuffix(a) equalsIgnoreCase right.stripSuffix(b))
     matching contains true
 
   left.equalsIgnoreCase(right) ||
