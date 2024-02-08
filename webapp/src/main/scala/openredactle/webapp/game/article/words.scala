@@ -43,16 +43,17 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
             lengthStr + nbsp.repeat(length - lengthStr.length)
 
       def blockedElement(inHintMode: Boolean, isSecret: Boolean) = span(
-        backgroundColor := (if inHintMode then if isSecret then Colors.secretWord else Colors.hintBlock else Colors.black),
-        color := "white",
-        userSelect := "none",
-        cursor := "pointer",
+        cls := ("blocked-word" +:
+          (if inHintMode then
+            if isSecret then Seq("is-secret")
+            else Seq("is-hint")
+          else Nil)),
 
         onClick --> (_ =>
-            if !inHintMode || isSecret then showingLength.update(!_)
-            else
-              Game.requestHint(section, num)
-              Article.inHintMode.update(_ => false)
+          if !inHintMode || isSecret then showingLength.update(!_)
+          else
+            Game.requestHint(section, num)
+            Article.inHintMode.update(_ => false)
           ),
 
         child <-- renderText,

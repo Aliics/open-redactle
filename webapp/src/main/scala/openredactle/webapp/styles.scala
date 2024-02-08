@@ -36,13 +36,13 @@ def layoutFlex(direction: String = "default"): Seq[KeySetter.StyleSetter] =
   )
 
 object Colors:
-  val black = "rgb(50, 50, 50)"
-  val white = "rgb(250, 250, 250)"
-  val mainBackground = "rgb(250, 250, 250)"
-  val highlightedWord = "rgb(172, 208, 240)"
-  val correctWord = "rgb(223, 245, 255)"
-  val danger = "rgb(238, 70, 70)"
-  val action = "rgb(70, 70, 238)"
-  val actionHeld = "rgb(30, 30, 248)"
-  val secretWord = "rgb(200, 40, 30)"
-  val hintBlock = "rgb(11, 74, 132)"
+  val black = "var(--black)"
+  val white = "var(--white)"
+  val mainBackground = "var(--main-background)"
+  val highlightedWord = "var(--highlighted-word)"
+  val correctWord = "var(--correct-word)"
+  val danger = "var(--danger)"
+  val action = "var(--action)"
+  val actionHeld = "var(--action-held)"
+  val secretWord = "var(--secret-word)"
+  val hintBlock = "var(--hint-block)"

@@ -40,22 +40,22 @@ object StatusBar:
           child.text <-- copyLinkButtonText,
         ),
       ),
-      
+
       div(
-        button(
-          buttonStyle(bgColor = Colors.danger),
-          onClick --> (_ => window.location.href = "/"),
-          "Leave Game",
-        ),
         child <-- Article.inHintMode.signal.map: inHintMode =>
           button(
             buttonStyle(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
             onClick --> (_ => Article.inHintMode.update(!_ && hintsAvailable.now() > 0)),
             child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
           ),
+        button(
+          buttonStyle(bgColor = Colors.danger),
+          onClick --> (_ => window.location.href = "/"),
+          "Leave Game",
+        ),
       ),
     )
-    
+
   private def copyShareUrl(_e: MouseEvent): Unit =
     val shareUrl = s"${window.location.host}/game/${Game.gameId.now().get}"
     window.navigator.clipboard.writeText(shareUrl)
