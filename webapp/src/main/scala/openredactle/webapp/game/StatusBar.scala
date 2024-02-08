@@ -8,13 +8,12 @@ import scala.scalajs.js.timers.setTimeout
 
 object StatusBar:
   private val copyLinkButtonPromptText = "Copy Link"
-  private val copyIdButtonPromptText = "Copy ID"
   private val copyButtonDoneText = "Copied!"
 
   val playerCount: Var[Int] = Var(0)
+  val hintsAvailable: Var[Int] = Var(0)
 
   private val copyLinkButtonText = Var(copyLinkButtonPromptText)
-  private val copyIdButtonText = Var(copyIdButtonPromptText)
 
   lazy val renderElement: Element =
     div(
@@ -24,48 +23,43 @@ object StatusBar:
       justifyContent := "space-between",
       padding := "0.1rem 1rem",
 
-      a(
-        child.text <-- Game.gameId.signal.map(_ getOrElse ""),
-        copyButton(
-          copyIdButtonText,
-          copyIdButtonPromptText,
-          Game.gameId.now().get,
+      span(
+        fontSize := "14px",
+        child.text <-- playerCount.signal.map(c => s"Players: $c"),
+      ),
+
+      div(
+        child <-- Game.gameId.signal.map: gameId =>
+          span(fontSize := "14px", gameId getOrElse ""),
+
+        button(
+          buttonStyle(),
+          width := "5rem",
+
+          onClick --> copyShareUrl,
+          child.text <-- copyLinkButtonText,
         ),
-        copyButton(
-          copyLinkButtonText,
-          copyLinkButtonPromptText,
-          s"${window.location.host}/game/${Game.gameId.now().get}",
-        ),
+      ),
+      
+      div(
         button(
           buttonStyle(bgColor = Colors.danger),
           onClick --> (_ => window.location.href = "/"),
           "Leave Game",
         ),
-      ),
-
-      span(
-        fontSize := "14px",
-        child.text <-- playerCount.signal.map(c => s"Players: $c"),
+        child <-- Article.inHintMode.signal.map: inHintMode =>
+          button(
+            buttonStyle(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
+            onClick --> (_ => Article.inHintMode.update(!_ && hintsAvailable.now() > 0)),
+            child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
+          ),
       ),
     )
-
-  private def copyButton(textVar: Var[String], promptText: String, shareUrl: => String) =
-    button(
-      buttonStyle(),
-      width := "5rem",
-
-      onClick --> copyShare(
-        textVar,
-        promptText,
-        shareUrl,
-      ),
-
-      child.text <-- textVar,
-    )
-
-  private def copyShare(textVar: Var[String], text: String, shareUrl: => String)(_e: MouseEvent): Unit =
+    
+  private def copyShareUrl(_e: MouseEvent): Unit =
+    val shareUrl = s"${window.location.host}/game/${Game.gameId.now().get}"
     window.navigator.clipboard.writeText(shareUrl)
 
-    textVar.update(_ => copyButtonDoneText)
+    copyLinkButtonText.update(_ => copyButtonDoneText)
     setTimeout(500):
-      textVar.update(_ => text)
+      copyLinkButtonText.update(_ => copyLinkButtonPromptText)

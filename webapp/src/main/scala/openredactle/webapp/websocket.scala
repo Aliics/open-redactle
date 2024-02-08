@@ -24,12 +24,14 @@ def connectWs(gameId: Option[String] = None): WebSocket =
   ws.onmessage = msg =>
     val message = read[Message](msg.data.asInstanceOf[String])
     message match
-      case Message.GameState(gameId, playerCount, articleData, guesses) =>
+      case Message.GameState(gameId, playerCount, articleData, guesses, hintsAvailable, secretPositions) =>
         window.history.replaceState((), "", s"/game/$gameId") // Make url match nicely. :)
 
         Game.gameId.update(_ => Some(gameId))
         StatusBar.playerCount.update(_ => playerCount)
+        StatusBar.hintsAvailable.update(_ => hintsAvailable)
         Article.articleData.update(_ => articleData)
+        Article.secretPositions.update(_ => secretPositions)
         Guesses.guessedWords.update(_ => guesses)
       case Message.NewGuess(guess, matchedCount) =>
         Guesses.guessedWords.update(_ :+ (guess, matchedCount))
@@ -41,6 +43,8 @@ def connectWs(gameId: Option[String] = None): WebSocket =
         StatusBar.playerCount.update(_ - 1)
       case Message.GameWon(fullArticleData) =>
         Article.articleData.update(_ => fullArticleData)
+      case Message.HintUsed() =>
+        StatusBar.hintsAvailable.update(_ - 1)
       case Message.Error(errorMessage) =>
         Errors.show(errorMessage)
       case _ =>

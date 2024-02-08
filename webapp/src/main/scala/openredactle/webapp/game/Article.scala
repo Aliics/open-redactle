@@ -5,11 +5,14 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.{ArticleData, Word}
+import openredactle.webapp.game.article.renderWordElement
 import openredactle.webapp.solidBorder
 
 object Article:
   val articleData: Var[Seq[ArticleData]] = Var(Nil)
   val selectedGuess: Var[Option[String]] = Var(None)
+  val secretPositions: Var[Seq[(Int, Seq[Int])]] = Var(Nil)
+  val inHintMode: Var[Boolean] = Var(false)
 
   lazy val renderElement: Element =
     div(
@@ -38,12 +41,13 @@ object Article:
     div:
       children <-- articleData.signal.splitByIndex(renderArticleData)
 
-  private def renderArticleData(index: Int, initialArticle: ArticleData, articleDataSignal: Signal[ArticleData]): Element =
+  private def renderArticleData(section: Int, initialArticle: ArticleData, articleDataSignal: Signal[ArticleData]): Element =
     val inner = Seq(
       lineHeight := "1.5rem",
 
-      children <-- articleDataSignal.map:
-        _.words.map(renderWordElement(selectedGuess.signal)(_)),
+      children <-- articleDataSignal.map: articleData =>
+        articleData.words.zipWithIndex.map: (word, num) =>
+          renderWordElement(word, section, num),
     )
 
     initialArticle match

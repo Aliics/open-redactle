@@ -23,6 +23,10 @@ object Game:
   def addGuess(guess: String): Unit =
     gameConnection.now().foreach: ws =>
       ws.send(write(Message.AddGuess(gameId.now().get, guess)))
+      
+  def requestHint(section: Int, num: Int): Unit =
+    gameConnection.now().foreach: ws =>
+      ws.send(write(Message.RequestHint(gameId.now().get, section, num)))
 
   lazy val renderElement: Element =
     div(

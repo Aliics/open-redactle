@@ -32,6 +32,8 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
         playerCount = playerCount,
         articleData = game.articleData,
         guesses = game.guessedWords.asScala.map(g => g.word -> g.matchedCount).toList,
+        hintsAvailable = game.hintsAvailable.get(),
+        secretPositions = game.secretPositions,
       ))
 
     val msg = read[Message](message)
@@ -43,6 +45,8 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
         Games.withGame(gameId)(connectToGame)(sendGameNotFoundError(conn, gameId))
       case Message.AddGuess(gameId, guess) =>
         Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(conn, gameId))
+      case Message.RequestHint(gameId, section, num) =>
+        Games.withGame(gameId)(_.requestHint(section, num))(sendGameNotFoundError(conn, gameId))
       case _ =>
         logger.error(s"Invalid message $message")
 

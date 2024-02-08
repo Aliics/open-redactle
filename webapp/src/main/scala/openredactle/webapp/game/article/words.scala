@@ -1,14 +1,15 @@
-package openredactle.webapp.game
+package openredactle.webapp.game.article
 
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Word
 import openredactle.shared.roughEquals
+import openredactle.webapp.game.{Article, Game}
 import openredactle.webapp.{Colors, solidBorder, userSelect}
 
 type WordFoldState = (Seq[Element], Option[(String, Boolean)])
 
-def renderWordElement(selectedGuessSignal: Signal[Option[String]])(word: Word): Element =
+def renderWordElement(word: Word, section: Int, num: Int): Element =
   def spaceNodeWhen(cond: => Boolean): Node = if cond then " " else emptyNode
 
   word match
@@ -16,7 +17,7 @@ def renderWordElement(selectedGuessSignal: Signal[Option[String]])(word: Word): 
       span(c.toString, spaceNodeWhen(hasSpace))
     case Word.Known(str, hasSpace) =>
       def renderText =
-        selectedGuessSignal.map:
+        Article.selectedGuess.signal.map:
           case Some(selectedGuess) if roughEquals(str)(selectedGuess) =>
             span(
               borderBottom := solidBorder(),
@@ -41,16 +42,28 @@ def renderWordElement(selectedGuessSignal: Signal[Option[String]])(word: Word): 
             val lengthStr = length.toString
             lengthStr + nbsp.repeat(length - lengthStr.length)
 
-      val blockedElement = span(
-        backgroundColor := Colors.black,
+      def blockedElement(inHintMode: Boolean, isSecret: Boolean) = span(
+        backgroundColor := (if inHintMode then if isSecret then Colors.secretWord else Colors.hintBlock else Colors.black),
         color := "white",
         userSelect := "none",
         cursor := "pointer",
 
-        onClick --> (_ => showingLength.update(!_)),
+        onClick --> (_ =>
+            if !inHintMode || isSecret then showingLength.update(!_)
+            else
+              Game.requestHint(section, num)
+              Article.inHintMode.update(_ => false)
+          ),
 
         child <-- renderText,
       )
 
-      if hasSpace then span(blockedElement, " ")
-      else blockedElement
+      span(
+        child <-- Article.inHintMode.signal
+          .combineWith(Article.secretPositions.signal)
+          .map: (inHintMode, secretPositions) =>
+            val isSecret = secretPositions.find(_._1 == section).exists(_._2.exists(_ == num))
+            if hasSpace then span(blockedElement(inHintMode, isSecret), " ")
+            else blockedElement(inHintMode, isSecret)
+      )
+

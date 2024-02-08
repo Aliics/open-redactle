@@ -8,12 +8,21 @@ enum Message derives ReadWriter:
   case StartGame()
   case JoinGame(gameId: String)
   case AddGuess(gameId: String, guess: String)
+  case RequestHint(gameId: String, section: Int, position: Int)
 
   // Outputs
-  case GameState(gameId: String, playerCount: Int, articleData: Seq[ArticleData], guesses: List[(String, Int)])
+  case GameState(
+    gameId: String,
+    playerCount: Int,
+    articleData: Seq[ArticleData],
+    guesses: List[(String, Int)],
+    hintsAvailable: Int,
+    secretPositions: Seq[(Int, Seq[Int])]
+  )
   case NewGuess(guess: String, matchedCount: Int)
   case GuessMatch(word: Word.Known, matches: Seq[(Int, Seq[Int])])
   case PlayerJoined()
   case PlayerLeft()
   case GameWon(fullArticleData: Seq[ArticleData])
+  case HintUsed()
   case Error(message: String)

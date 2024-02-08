@@ -4,7 +4,7 @@ import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.data.ArticleData.{Header, Paragraph, Title}
 import openredactle.shared.{data, roughEquals, wordsFromString}
 
-val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to", "be", "s")
+val freeWords = List("or", "as", "a", "of", "and", "in", "the", "by", "if", "to", "be", "is")
 
 val dummyRabbitArticleData: List[ArticleData] =
   List(
