@@ -38,8 +38,11 @@ object Article:
     )
 
   private def renderArticleData: Element =
-    div:
-      children <-- articleData.signal.splitByIndex(renderArticleData)
+    div(
+      cls <-- inHintMode.signal.map(if _ then "in-hint-mode" else ""),
+
+      children <-- articleData.signal.splitByIndex(renderArticleData),
+    )
 
   private def renderArticleData(section: Int, initialArticle: ArticleData, articleDataSignal: Signal[ArticleData]): Element =
     val inner = Seq(

@@ -45,10 +45,10 @@ input:focus, button:hover {
     cursor: pointer;
 }
 
-.is-secret {
-    background-color: var(--secret-word);
+.in-hint-mode .is-secret {
+    background-color: var(--secret-word) !important;
 }
 
-.is-hint {
+.in-hint-mode .blocked-word {
     background-color: var(--hint-block);
 }

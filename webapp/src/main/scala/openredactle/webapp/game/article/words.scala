@@ -42,15 +42,11 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
             val lengthStr = length.toString
             lengthStr + nbsp.repeat(length - lengthStr.length)
 
-      def blockedElement(inHintMode: Boolean, isSecret: Boolean) = span(
-        cls := ("blocked-word" +:
-          (if inHintMode then
-            if isSecret then Seq("is-secret")
-            else Seq("is-hint")
-          else Nil)),
+      def blockedElement(isSecret: Boolean) = span(
+        cls := (Seq("blocked-word") ++ Option.when(isSecret)("is-secret")),
 
         onClick --> (_ =>
-          if !inHintMode || isSecret then showingLength.update(!_)
+          if !Article.inHintMode.now() || isSecret then showingLength.update(!_)
           else
             Game.requestHint(section, num)
             Article.inHintMode.update(_ => false)
@@ -60,11 +56,10 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
       )
 
       span(
-        child <-- Article.inHintMode.signal
-          .combineWith(Article.secretPositions.signal)
-          .map: (inHintMode, secretPositions) =>
+        child <-- Article.secretPositions.signal
+          .map: secretPositions =>
             val isSecret = secretPositions.find(_._1 == section).exists(_._2.exists(_ == num))
-            if hasSpace then span(blockedElement(inHintMode, isSecret), " ")
-            else blockedElement(inHintMode, isSecret)
+            if hasSpace then span(blockedElement(isSecret), " ")
+            else blockedElement(isSecret)
       )
 
