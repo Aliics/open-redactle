@@ -1,7 +1,9 @@
 package openredactle.webapp.game
 
+import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.{Colors, buttonStyle, solidBorder}
+import openredactle.shared.let
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
@@ -12,6 +14,10 @@ object StatusBar:
 
   val playerCount: Var[Int] = Var(0)
   val hintsAvailable: Var[Int] = Var(0)
+  let:
+    given ManualOwner()
+    hintsAvailable.signal.foreach: n =>
+      Article.inHintMode.update(_ && n > 0)
 
   private val copyLinkButtonText = Var(copyLinkButtonPromptText)
 
