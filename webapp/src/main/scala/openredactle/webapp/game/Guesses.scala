@@ -22,8 +22,13 @@ object Guesses:
         fontSize := "12px",
         color := "dimgray",
         padding := "0.2rem 1rem",
+        layoutFlex(),
+        columnGap := "1rem",
 
-        child.text <-- guessedWords.signal.map(w => s"Guesses: ${w.size}"),
+        children <-- guessedWords.signal.map: guessedWords =>
+          span(s"Guesses: ${guessedWords.size}") ::
+            span(s"Correct: ${guessedWords.count(w => w._2 > 0 && !w._3)}") ::
+            Nil
       ),
 
       div(
