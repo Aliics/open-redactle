@@ -32,6 +32,7 @@ object Games extends ImplicitLazyLogger:
           val emptyGameTtl = game.lastDisconnectTime.get() + 5 * 60_000
           game.connectedPlayers.isEmpty && emptyGameTtl < Instant.now().toEpochMilli
         games removeAll deadGames.asJavaCollection
-        logger.info(s"Removed ${deadGames.size} dead games")
+        if deadGames.nonEmpty then
+          logger.info(s"Removed ${deadGames.size} dead games")
       _ <- runGameReaper()
     yield ()
