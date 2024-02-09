@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -x
+
+sbt clean server/assembly
+
+docker build \
+  -f ops/Dockerfile \
+  -t open-redactle-server \
+  --build-arg="APP_JAR=/server/target/scala-3.3.1/server-assembly.jar" \
+  .
+
+aws ecr get-login-password --region ap-southeast-2 |
+  docker login --username AWS --password-stdin "$ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com"
+docker tag open-redactle-server:latest "$ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/open-redactle-server:latest"
+docker push "$ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/open-redactle-server:latest"

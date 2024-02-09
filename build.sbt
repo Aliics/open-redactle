@@ -28,6 +28,7 @@ lazy val webapp = project.in(file("webapp"))
 lazy val server = project.in(file("server"))
   .dependsOn(shared.jvm)
   .settings(
+    assembly / assemblyJarName := "server-assembly.jar",
     libraryDependencies ++= Seq(
       "org.java-websocket" % "Java-WebSocket" % Versions.javaWebsocket,
 

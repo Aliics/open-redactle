@@ -59,11 +59,13 @@ class Game extends ImplicitLazyLogger:
       guessedWords.add(Guess(guess, matchedCount, isHint))
 
       if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
+        logger.info(s"""Guess in $id: "$guess"""")
         broadcast(NewGuess(guess, matchedCount, isHint))
         matches.foreach:
           case (word, matches) =>
             broadcast(GuessMatch(word, matches))
       else
+        logger.info(s"""Game won $id with guess: "$guess"""")
         broadcast(GameWon(fullArticleData))
         gameWon.set(true)
 

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -x
+
+npm run build
+
+aws s3 cp --recursive dist/ s3://open-redactle.com/
+aws cloudfront create-invalidation --distribution-id E3TGCNUWIUFGKO --paths '/*'
