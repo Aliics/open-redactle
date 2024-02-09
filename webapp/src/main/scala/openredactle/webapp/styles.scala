@@ -40,9 +40,21 @@ object Colors:
   val white = "var(--white)"
   val mainBackground = "var(--main-background)"
   val highlightedWord = "var(--highlighted-word)"
+  val highlightedHintWord = "var(--highlighted-hint-word)"
   val correctWord = "var(--correct-word)"
+  val hintWord = "var(--hint-word)"
   val danger = "var(--danger)"
   val action = "var(--action)"
   val actionHeld = "var(--action-held)"
   val secretWord = "var(--secret-word)"
   val hintBlock = "var(--hint-block)"
+
+  def highlightColor(isHint: Boolean): String =
+    if isHint then Colors.highlightedHintWord
+    else Colors.highlightedWord
+
+  def wordColor(isCorrectGuess: Boolean, isHint: Boolean): String =
+    if isCorrectGuess then
+      if isHint then Colors.hintWord
+      else Colors.correctWord
+    else Colors.mainBackground

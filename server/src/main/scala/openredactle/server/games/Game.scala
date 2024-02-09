@@ -49,17 +49,17 @@ class Game extends ImplicitLazyLogger:
   private def broadcast(message: Message): Unit =
     connectedPlayers.asScala.foreach(_.send(message))
 
-  def addGuess(rawGuess: String): Unit =
+  def addGuess(rawGuess: String, isHint: Boolean = false): Unit =
     val guess = rawGuess.trim
     val alreadyGuessed = guessedWords.asScala.exists(g => roughEquals(g._1)(guess))
     val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
     if !guess.isBlank && !isFreeWord && !alreadyGuessed then
       val (matches, matchedCount) = getMatchingGuessData(fullArticleData)(guess)
 
-      guessedWords.add(Guess(guess, matchedCount))
+      guessedWords.add(Guess(guess, matchedCount, isHint))
 
       if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
-        broadcast(NewGuess(guess, matchedCount))
+        broadcast(NewGuess(guess, matchedCount, isHint))
         matches.foreach:
           case (word, matches) =>
             broadcast(GuessMatch(word, matches))
@@ -73,7 +73,7 @@ class Game extends ImplicitLazyLogger:
       hintsAvailable.set(avail - 1)
       fullArticleData.lift(section).flatMap(_.words.lift(num)) match
         case Some(Word.Known(str, _)) =>
-          addGuess(str)
+          addGuess(str, isHint = true)
           broadcast(HintUsed())
         case _ =>
           logger.warn(s"Attempted to give hint at position: $section, $num")
@@ -103,11 +103,14 @@ class Game extends ImplicitLazyLogger:
 
   // Needed so Comparable can be implemented.
   // We use a ConcurrentSkipListSet, which needs all elements to implement it.
-  case class Guess(word: String, matchedCount: Int) extends Comparable[Guess]:
+  case class Guess(word: String, matchedCount: Int, isHint: Boolean) extends Comparable[Guess]:
     override def compareTo(o: Guess): Int =
       val wordCmp = word compareTo o.word
       if wordCmp != 0 then wordCmp
-      else matchedCount compareTo o.matchedCount
+      else
+        val matchedCmp = matchedCount compareTo o.matchedCount
+        if matchedCmp != 0 then matchedCmp
+        else isHint compareTo o.isHint
 
 object Game:
   private val s3Storage = S3Storage()

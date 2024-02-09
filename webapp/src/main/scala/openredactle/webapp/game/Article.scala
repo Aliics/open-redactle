@@ -10,7 +10,7 @@ import openredactle.webapp.solidBorder
 
 object Article:
   val articleData: Var[Seq[ArticleData]] = Var(Nil)
-  val selectedGuess: Var[Option[String]] = Var(None)
+  val selectedGuess: Var[Option[(String, Boolean)]] = Var(None)
   val secretPositions: Var[Seq[(Int, Seq[Int])]] = Var(Nil)
   val inHintMode: Var[Boolean] = Var(false)
 

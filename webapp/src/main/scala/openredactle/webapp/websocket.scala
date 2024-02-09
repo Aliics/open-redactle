@@ -33,8 +33,8 @@ def connectWs(gameId: Option[String] = None): WebSocket =
         Article.articleData.update(_ => articleData)
         Article.secretPositions.update(_ => secretPositions)
         Guesses.guessedWords.update(_ => guesses)
-      case Message.NewGuess(guess, matchedCount) =>
-        Guesses.guessedWords.update(_ :+ (guess, matchedCount))
+      case Message.NewGuess(guess, matchedCount, isHint) =>
+        Guesses.guessedWords.update(_ :+ (guess, matchedCount, isHint))
       case Message.GuessMatch(word, matches) =>
         Article.updateMatched(word, matches)
       case Message.PlayerJoined() =>

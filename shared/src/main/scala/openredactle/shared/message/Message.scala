@@ -15,11 +15,11 @@ enum Message derives ReadWriter:
     gameId: String,
     playerCount: Int,
     articleData: Seq[ArticleData],
-    guesses: List[(String, Int)],
+    guesses: List[(String, Int, Boolean)],
     hintsAvailable: Int,
     secretPositions: Seq[(Int, Seq[Int])]
   )
-  case NewGuess(guess: String, matchedCount: Int)
+  case NewGuess(guess: String, matchedCount: Int, isHint: Boolean)
   case GuessMatch(word: Word.Known, matches: Seq[(Int, Seq[Int])])
   case PlayerJoined()
   case PlayerLeft()

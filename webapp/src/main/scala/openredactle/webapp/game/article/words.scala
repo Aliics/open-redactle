@@ -5,7 +5,7 @@ import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Word
 import openredactle.shared.roughEquals
 import openredactle.webapp.game.{Article, Game}
-import openredactle.webapp.{Colors, solidBorder, userSelect}
+import openredactle.webapp.{Colors, solidBorder}
 
 type WordFoldState = (Seq[Element], Option[(String, Boolean)])
 
@@ -18,10 +18,10 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
     case Word.Known(str, hasSpace) =>
       def renderText =
         Article.selectedGuess.signal.map:
-          case Some(selectedGuess) if roughEquals(str)(selectedGuess) =>
+          case Some(selectedGuess -> isHint) if roughEquals(str)(selectedGuess) =>
             span(
               borderBottom := solidBorder(),
-              backgroundColor := Colors.highlightedWord,
+              backgroundColor := Colors.highlightColor(isHint),
               str,
             )
           case _ =>

@@ -31,22 +31,24 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
         gameId = game.id,
         playerCount = playerCount,
         articleData = game.articleData,
-        guesses = game.guessedWords.asScala.map(g => g.word -> g.matchedCount).toList,
+        guesses = game.guessedWords.asScala.map(g => (g.word, g.matchedCount, g.isHint)).toList,
         hintsAvailable = game.hintsAvailable.get(),
         secretPositions = game.secretPositions,
       ))
 
+    given WebSocket = conn
+    
     val msg = read[Message](message)
     msg match
       case Message.StartGame() =>
         logger.info("Starting new game!")
         connectToGame(Games.create())
       case Message.JoinGame(gameId) =>
-        Games.withGame(gameId)(connectToGame)(sendGameNotFoundError(conn, gameId))
+        Games.withGame(gameId)(connectToGame)(sendGameNotFoundError(gameId))
       case Message.AddGuess(gameId, guess) =>
-        Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(conn, gameId))
+        Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(gameId))
       case Message.RequestHint(gameId, section, num) =>
-        Games.withGame(gameId)(_.requestHint(section, num))(sendGameNotFoundError(conn, gameId))
+        Games.withGame(gameId)(_.requestHint(section, num))(sendGameNotFoundError(gameId))
       case _ =>
         logger.error(s"Invalid message $message")
 
@@ -59,5 +61,5 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
     setConnectionLostTimeout(0)
     setConnectionLostTimeout(60)
 
-  private def sendGameNotFoundError(conn: WebSocket, attemptedGameId: String): Unit =
+  private def sendGameNotFoundError(attemptedGameId: String)(using conn: WebSocket): Unit =
     conn.send(Message.Error(s"Game not found with ID: $attemptedGameId"))

@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.*
 
 object Guesses:
-  private type Guess = (String, Int)
+  private type Guess = (String, Int, Boolean)
 
   val guessedWords: Var[List[Guess]] = Var(List())
 
@@ -65,8 +65,8 @@ object Guesses:
     )
 
   private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]) =
-    val guessed = initial._1
-    val isCorrectGuess = initial._2 > 0
+    val (guessed, matched, isHint) = initial
+    val isCorrectGuess = matched > 0
     div(
       layoutFlex(),
       alignItems := "center",
@@ -79,18 +79,17 @@ object Guesses:
 
       backgroundColor <--
         Article.selectedGuess.signal.map:
-          case Some(sel) if sel == guessed =>
-            Colors.highlightedWord
+          case Some(sel -> _) if sel == guessed =>
+            Colors.highlightColor(isHint)
           case _ =>
-            if isCorrectGuess then Colors.correctWord
-            else Colors.mainBackground
+            Colors.wordColor(isCorrectGuess, isHint)
             ,
 
         onClick --> { _ =>
         if isCorrectGuess then
           Article.selectedGuess.update:
-            case Some(sel) if sel == guessed => None
-            case _ => Some(guessed)
+            case Some(sel -> _) if sel == guessed => None
+            case _ => Some(guessed -> isHint)
       },
 
       span(

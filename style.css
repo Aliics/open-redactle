@@ -2,8 +2,10 @@
     --black: rgb(50, 50, 50);
     --white: rgb(250, 250, 250);
     --main-background: rgb(250, 250, 250);
-    --highlighted-word: rgb(132, 189, 240);
-    --correct-word: rgb(223, 245, 255);
+    --highlighted-word: rgb(155, 240, 132);
+    --highlighted-hint-word: rgb(152, 181, 236);
+    --correct-word: rgb(232, 255, 223);
+    --hint-word: rgb(223, 233, 255);
     --danger: rgb(238, 70, 70);
     --action: rgb(70, 70, 238);
     --action-held: rgb(30, 30, 248);
