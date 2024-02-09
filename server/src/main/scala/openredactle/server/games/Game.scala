@@ -49,7 +49,8 @@ class Game extends ImplicitLazyLogger:
   private def broadcast(message: Message): Unit =
     connectedPlayers.asScala.foreach(_.send(message))
 
-  def addGuess(guess: String): Unit =
+  def addGuess(rawGuess: String): Unit =
+    val guess = rawGuess.trim
     val alreadyGuessed = guessedWords.asScala.exists(g => roughEquals(g._1)(guess))
     val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
     if !guess.isBlank && !isFreeWord && !alreadyGuessed then
