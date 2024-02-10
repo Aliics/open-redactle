@@ -10,14 +10,20 @@ import org.jsoup.nodes.Element
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
-@main def main(): Unit =
+@main def main(mode: Mode): Unit =
   val logger = Logger("scraper")
+
+  logger.info(s"Running in $mode mode")
 
   val s3Storage = S3Storage()
   val indexData = s3Storage.fetchIndex()
 
+  val articleInfos = mode match
+    case Mode.Generate => fetchRandomArticles(amount = 500)
+    case Mode.Update => refetchArticlesFromIndex(indexData)
+
   val articlesInfoContents = (
-    for a@ArticleInfo(title, uri) <- fetchRandomArticles(amount = 500) yield
+    for a@ArticleInfo(title, uri) <- articleInfos yield
       val bodyContent = Jsoup.connect(uri.toString)
         .get()
         .getElementById("bodyContent")
