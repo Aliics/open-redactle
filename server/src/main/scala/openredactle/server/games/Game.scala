@@ -1,6 +1,6 @@
 package openredactle.server.games
 
-import openredactle.server.data.{freeWords, getMatchingGuessData, randomWords}
+import openredactle.server.data.{Guess, freeWords, getMatchingGuessData, randomWords}
 import openredactle.server.{random, send}
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
@@ -102,17 +102,6 @@ class Game extends ImplicitLazyLogger:
       val matched = articleData.words.zipWithIndex.collect:
         case (Word.Known(str, _), i) if secrets.exists(roughEquals(_)(str)) => i
       i -> matched
-
-  // Needed so Comparable can be implemented.
-  // We use a ConcurrentSkipListSet, which needs all elements to implement it.
-  case class Guess(word: String, matchedCount: Int, isHint: Boolean) extends Comparable[Guess]:
-    override def compareTo(o: Guess): Int =
-      val wordCmp = word compareTo o.word
-      if wordCmp != 0 then wordCmp
-      else
-        val matchedCmp = matchedCount compareTo o.matchedCount
-        if matchedCmp != 0 then matchedCmp
-        else isHint compareTo o.isHint
 
 object Game:
   private val s3Storage = S3Storage()
