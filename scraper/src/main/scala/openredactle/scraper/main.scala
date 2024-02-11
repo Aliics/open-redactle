@@ -10,6 +10,9 @@ import org.jsoup.nodes.Element
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
+val minimumWatchers = 100
+val minimumParagraphs = 20
+
 @main def main(mode: Mode): Unit =
   val logger = Logger("scraper")
 
@@ -20,10 +23,10 @@ import scala.jdk.CollectionConverters.*
 
   val articleInfos = mode match
     case Mode.Generate => fetchRandomArticles(amount = 500)
-    case Mode.Update => refetchArticlesFromIndex(indexData)
+    case Mode.Update => refetchArticlesFromIndex(indexData.map(_._2))
 
   val articlesInfoContents = (
-    for a@ArticleInfo(title, uri) <- articleInfos yield
+    for a@ArticleInfo(title, uri, watchers) <- articleInfos if watchers >= minimumWatchers yield
       val bodyContent = Jsoup.connect(uri.toString)
         .get()
         .getElementById("bodyContent")
@@ -33,7 +36,7 @@ import scala.jdk.CollectionConverters.*
             .exists(el.text().startsWith(_))
 
       // Needs more than 10 paragraphs of at least tweet length lol.
-      if bodyContent.count(_.text().length > 280) > 10 then
+      if bodyContent.count(_.text().length >= 280) >= minimumParagraphs then
         val articleData = bodyContentElementsToArticleData(bodyContent)
 
         logger.info(s"Article can be saved $a")
@@ -47,16 +50,27 @@ import scala.jdk.CollectionConverters.*
     .flatten
     .distinctBy(_._1) // Rare chance we get the same article using random.
     .zipWithIndex.map:
-      case ((a, d, e), i) => (i + indexData.length, a, d, e)
+      case ((a, d, e), i) => (i, a, d, e)
 
-  logger.info(s"Writing ${articlesInfoContents.length} items to index")
-  s3Storage.updateIndex:
-    indexData ++ articlesInfoContents.collect:
-      case (i, ArticleInfo(_, uri), _, None) => i -> uri.toString
+  val infoContentsLen = articlesInfoContents.length
+  logger.info(s"Writing $infoContentsLen items to index")
 
-  logger.info(s"Writing ${articlesInfoContents.length} items as s3 objects")
-  for (i, _, articleData, existingIndex) <- articlesInfoContents do
-    s3Storage.writeArticleData(existingIndex getOrElse i, articleData)
+  if mode == Mode.Generate then
+    s3Storage.updateIndex:
+      indexData ++ articlesInfoContents.collect:
+        case (i, ArticleInfo(_, uri, _), _, None) => (i + indexData.length) -> uri.toString
+
+    logger.info(s"Writing $infoContentsLen items as s3 objects")
+    for (i, _, articleData, existingIndex) <- articlesInfoContents do
+      s3Storage.writeArticleData(existingIndex getOrElse (i + indexData.length), articleData)
+  else
+    s3Storage.updateIndex:
+      articlesInfoContents.map:
+        case (i, ArticleInfo(_, uri, _), _, _) => i -> uri.toString
+
+    logger.info(s"Writing $infoContentsLen items as s3 objects")
+    for (i, _, articleData, _) <- articlesInfoContents do
+      s3Storage.writeArticleData(i, articleData)
 end main
 
 private def bodyContentElementsToArticleData(bodyContent: mutable.Buffer[Element]) =

@@ -11,31 +11,28 @@ private val baseArticleUrl = uri"https://en.wikipedia.org/wiki"
 private case class WikipediaResponse[Query](query: Query)derives Reader
 
 private case class RandomQuery(random: Seq[RandomInfo])derives Reader
-private case class RandomInfo(id: Int, title: String)derives Reader
+private case class RandomInfo(id: Int)derives Reader
 
 private case class PagesQuery(pages: Seq[PageInfo])derives Reader
-private case class PageInfo(pageid: Int, title: String)derives Reader
+private case class PageInfo(pageid: Int, title: String, watchers: Int = 0)derives Reader
 
 def fetchRandomArticles(amount: Int): Seq[ArticleInfo] =
   val RandomQuery(random) = queryWikipedia[RandomQuery](uri"$baseApiUrl&list=random&rnnamespace=0&rnlimit=$amount")
 
-  random.map: info =>
-    ArticleInfo(
-      title = info.title,
-      uri = uri"$baseArticleUrl?curid=${info.id}",
-    )
+  refetchArticlesFromIndex(random.map(r => s"$baseArticleUrl?curid=${r.id}"))
 
-def refetchArticlesFromIndex(indexData: Seq[(Int, String)]): Seq[ArticleInfo] =
-  indexData.map(_._2)
+def refetchArticlesFromIndex(indexData: Seq[String]): Seq[ArticleInfo] =
+  indexData
     .grouped(50)
     .flatMap: uris =>
       val idsStr = uris.map { case s"$_?curid=$id" => id }.mkString("|")
-      queryWikipedia[PagesQuery](uri"$baseApiUrl&prop=info&pageids=$idsStr").pages
+      queryWikipedia[PagesQuery](uri"$baseApiUrl&prop=info&inprop=watchers&pageids=$idsStr").pages
     .toSeq
     .map: info =>
       ArticleInfo(
         title = info.title,
         uri = uri"$baseArticleUrl?curid=${info.pageid}",
+        watchers = info.watchers,
       )
 
 private def queryWikipedia[Query: Reader](uri: Uri): Query =

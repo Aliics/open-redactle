@@ -34,7 +34,6 @@ class S3Storage(val bucket: String = S3Storage.bucketName):
   def getArticleByIndex(index: Int): Seq[ArticleData] =
     read[Seq[ArticleData]](readS3Object(S3Storage.indexObjectPath(index)))
 
-  
   private def writeS3Object(key: String, body: String): Unit =
     s3.putObject(
       PutObjectRequest.builder
