@@ -17,10 +17,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
 
 object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLazyLogger:
-  CloudWatchEmitter("open-redactle-server-websockets")(
-    Metric("open-connections", StandardUnit.COUNT, () => connCount.doubleValue()),
-  )
-
   private val connCount = AtomicLong(0)
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
     connCount.incrementAndGet()
@@ -74,3 +70,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
 
   private def sendGameNotFoundError(attemptedGameId: String)(using conn: WebSocket): Unit =
     conn.send(Message.Error(s"Game not found with ID: $attemptedGameId"))
+
+  CloudWatchEmitter("open-redactle-server-websockets")(
+    Metric("open-connections", StandardUnit.COUNT, () => connCount.doubleValue()),
+  )

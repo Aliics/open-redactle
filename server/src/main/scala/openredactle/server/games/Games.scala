@@ -13,11 +13,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 
 object Games extends ImplicitLazyLogger:
-  CloudWatchEmitter("open-redactle-server-games")(
-    Metric("alive-games", StandardUnit.COUNT, () => games.size()),
-    Metric("number-players", StandardUnit.COUNT, () => games.asScala.sumBy(_.connectedPlayers.size)),
-  )
-
   private val games = ConcurrentLinkedQueue[Game]()
 
   def create(): Game =
@@ -46,3 +41,8 @@ object Games extends ImplicitLazyLogger:
       _ <- Future(Thread.sleep(10_000))
       _ <- runGameReaper()
     yield ()
+
+  CloudWatchEmitter("open-redactle-server-games")(
+    Metric("alive-games", StandardUnit.COUNT, () => games.size()),
+    Metric("number-players", StandardUnit.COUNT, () => games.asScala.sumBy(_.connectedPlayers.size)),
+  )
