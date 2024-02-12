@@ -21,6 +21,7 @@ enum Message derives ReadWriter:
   )
   case NewGuess(guess: String, matchedCount: Int, isHint: Boolean)
   case GuessMatch(word: Word.Known, matches: Seq[(Int, Seq[Int])])
+  case AlreadyGuessed(guess: String, isHint: Boolean)
   case PlayerJoined()
   case PlayerLeft()
   case GameWon(fullArticleData: Seq[ArticleData])

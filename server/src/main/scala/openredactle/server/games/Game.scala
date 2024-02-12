@@ -6,7 +6,7 @@ import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
-import openredactle.shared.message.Message.{GameWon, GuessMatch, HintUsed, NewGuess}
+import openredactle.shared.message.Message.*
 import openredactle.shared.stored.S3Storage
 import openredactle.shared.{data, let, roughEquals}
 import org.java_websocket.WebSocket
@@ -49,11 +49,11 @@ class Game extends ImplicitLazyLogger:
   private def broadcast(message: Message): Unit =
     connectedPlayers.asScala.foreach(_.send(message))
 
-  def addGuess(rawGuess: String, isHint: Boolean = false): Unit =
+  def addGuess(rawGuess: String, isHint: Boolean = false)(using conn: WebSocket): Unit =
     val guess = rawGuess.trim
-    val alreadyGuessed = guessedWords.asScala.exists(g => roughEquals(g._1)(guess))
     val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
-    if !guess.isBlank && !isFreeWord && !alreadyGuessed then
+    val alreadyGuessed = guessedWords.asScala.find(g => roughEquals(g._1)(guess))
+    if !guess.isBlank && !isFreeWord && alreadyGuessed.isEmpty then
       val (matches, matchedCount) = getMatchingGuessData(fullArticleData)(guess)
 
       guessedWords.add(Guess(guess, matchedCount, isHint))
@@ -69,8 +69,11 @@ class Game extends ImplicitLazyLogger:
         logger.info(s"""Game won $id with guess: "$guess"""")
         broadcast(GameWon(fullArticleData))
         gameWon.set(true)
+    else if alreadyGuessed.isDefined then
+      val Guess(word, _, isHint) = alreadyGuessed.get
+      conn.send(AlreadyGuessed(word, isHint))
 
-  def requestHint(section: Int, num: Int): Unit =
+  def requestHint(section: Int, num: Int)(using WebSocket): Unit =
     val avail = hintsAvailable.get()
     if avail > 0 then
       hintsAvailable.set(avail - 1)
