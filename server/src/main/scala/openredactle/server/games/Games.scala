@@ -1,14 +1,23 @@
 package openredactle.server.games
 
+import openredactle.server.metrics.{CloudWatchEmitter, Metric}
 import openredactle.shared.logging.ImplicitLazyLogger
+import openredactle.shared.sumBy
 import org.java_websocket.WebSocket
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
 
 import java.time.Instant
 import java.util.concurrent.ConcurrentLinkedQueue
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 
 object Games extends ImplicitLazyLogger:
+  CloudWatchEmitter("open-redactle-server-games")(
+    Metric("alive-games", StandardUnit.COUNT, () => games.size()),
+    Metric("number-players", StandardUnit.COUNT, () => games.asScala.sumBy(_.connectedPlayers.size)),
+  )
+
   private val games = ConcurrentLinkedQueue[Game]()
 
   def create(): Game =
@@ -26,7 +35,6 @@ object Games extends ImplicitLazyLogger:
 
   def runGameReaper()(using ExecutionContext): Future[Unit] =
     for
-      _ <- Future(Thread.sleep(10_000))
       _ <- Future:
         val deadGames = games.asScala.filter: game =>
           val emptyGameTtl = game.lastDisconnectTime.get() + 5 * 60_000
@@ -34,5 +42,7 @@ object Games extends ImplicitLazyLogger:
         games removeAll deadGames.asJavaCollection
         if deadGames.nonEmpty then
           logger.info(s"Removed ${deadGames.size} dead games")
+
+      _ <- Future(Thread.sleep(10_000))
       _ <- runGameReaper()
     yield ()

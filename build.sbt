@@ -31,6 +31,7 @@ lazy val server = project.in(file("server"))
     assembly / assemblyJarName := "server-assembly.jar",
     libraryDependencies ++= Seq(
       "org.java-websocket" % "Java-WebSocket" % Versions.javaWebsocket,
+      "software.amazon.awssdk" % "cloudwatch" % Versions.awsSdk,
 
       "org.scalatest" %% "scalatest" % Versions.scalaTest % Test,
     ),

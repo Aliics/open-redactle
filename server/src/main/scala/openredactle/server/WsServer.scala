@@ -2,21 +2,32 @@ package openredactle.server
 
 import com.typesafe.scalalogging.Logger
 import openredactle.server.games.{Game, Games}
+import openredactle.server.metrics.{CloudWatchEmitter, Metric}
 import openredactle.shared.logging.ImplicitLazyLogger
-import openredactle.shared.message.{*, given}
+import openredactle.shared.message.*
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
 import upickle.default.read
 
 import java.net.InetSocketAddress
+import java.util.concurrent.atomic.AtomicLong
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
 
 object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLazyLogger:
+  CloudWatchEmitter("open-redactle-server-websockets")(
+    Metric("open-connections", StandardUnit.COUNT, () => connCount.doubleValue()),
+  )
+
+  private val connCount = AtomicLong(0)
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
+    connCount.incrementAndGet()
     logger.info(s"New connection: ${conn.getRemoteSocketAddress}")
 
   override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean): Unit =
+    connCount.decrementAndGet()
     Games.findPlayerGame(conn) match
       case Some(game) =>
         game.disconnect(conn)
@@ -37,7 +48,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
       ))
 
     given WebSocket = conn
-    
+
     val msg = read[Message](message)
     msg match
       case Message.StartGame() =>
