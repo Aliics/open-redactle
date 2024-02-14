@@ -19,9 +19,10 @@ class CloudWatchEmitter(namespace: String)(val metrics: Metric*)(using Execution
         case Metric(name, unit, compute) =>
           cloudwatch.putMetricData(
             PutMetricDataRequest.builder
-              .namespace(s"$namespace/$name")
+              .namespace(namespace)
               .metricData(
                 MetricDatum.builder
+                  .metricName(name)
                   .unit(unit)
                   .value(compute())
                   .build
