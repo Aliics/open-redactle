@@ -2,7 +2,7 @@ package openredactle.webapp.game
 
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{Colors, buttonStyle, solidBorder}
+import openredactle.webapp.{Colors, colored, solidBorder}
 import openredactle.shared.let
 import org.scalajs.dom.{MouseEvent, window}
 
@@ -27,20 +27,21 @@ object StatusBar:
       display := "flex",
       alignItems := "center",
       justifyContent := "space-between",
-      padding := "0.1rem 1rem",
+      padding := "0 1rem",
+      height := "2.5rem",
 
       span(
-        fontSize := "14px",
+        fontSize := "16px",
         child.text <-- playerCount.signal.map(c => s"Players: $c"),
       ),
 
       div(
         child <-- Game.gameId.signal.map: gameId =>
-          span(fontSize := "14px", gameId getOrElse ""),
+          span(fontSize := "16px", gameId getOrElse ""),
 
         button(
-          buttonStyle(),
-          width := "5rem",
+          colored(),
+          width := "6rem",
 
           onClick --> copyShareUrl,
           child.text <-- copyLinkButtonText,
@@ -50,12 +51,12 @@ object StatusBar:
       div(
         child <-- Article.inHintMode.signal.map: inHintMode =>
           button(
-            buttonStyle(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
+            colored(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
             onClick --> (_ => Article.inHintMode.update(!_ && hintsAvailable.now() > 0)),
             child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
           ),
         button(
-          buttonStyle(bgColor = Colors.danger),
+          colored(bgColor = Colors.danger),
           onClick --> (_ => window.location.href = "/"),
           "Leave Game",
         ),

@@ -10,7 +10,7 @@ object Guesses:
 
   lazy val renderElement: Element =
     div(
-      width := "22rem",
+      width := "26rem",
       height := "100%",
       layoutFlex("column"),
       borderLeft := solidBorder(),
@@ -19,7 +19,7 @@ object Guesses:
 
       div(
         borderBottom := solidBorder(),
-        fontSize := "12px",
+        fontSize := "15px",
         color := "dimgray",
         padding := "0.2rem 1rem",
         layoutFlex(),
@@ -64,7 +64,7 @@ object Guesses:
         onInput.mapToValue --> guessInput,
       ),
       button(
-        buttonStyle(),
+        colored(),
         "Guess",
       ),
     )
@@ -77,7 +77,7 @@ object Guesses:
       alignItems := "center",
       borderBottom := solidBorder(),
       minWidth := "fit-content",
-      fontSize := "14px",
+      fontSize := "16px",
       padding := "0.25rem",
       cursor := (if isCorrectGuess then "pointer" else "default"),
       userSelect := "none",
@@ -98,7 +98,7 @@ object Guesses:
       },
 
       span(
-        fontSize := "13px",
+        fontSize := "15px",
         color := "grey",
         marginRight := "0.5rem",
 

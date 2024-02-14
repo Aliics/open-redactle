@@ -19,8 +19,7 @@ object Article:
       height := "100%",
       flexGrow := 1,
       overflowY := "scroll",
-      fontFamily := "monospace",
-      fontSize := "16px",
+      fontSize := "18px",
       padding := "0 1rem",
 
       renderArticleData,

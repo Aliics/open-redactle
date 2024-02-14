@@ -10,7 +10,7 @@ object StartMenu:
     div(
       layoutFlex("column"),
       alignSelf := "center",
-      width := "20rem",
+      width := "22rem",
       overflow := "hidden",
 
       h1("Open Redactle"),
@@ -19,6 +19,7 @@ object StartMenu:
         alignItems := "center",
         padding := "2rem",
         border := solidBorder(),
+        borderRadius := "0.5rem",
 
         renderJoinFormElement,
         renderDividingElement,
@@ -26,10 +27,11 @@ object StartMenu:
       ),
       a(
         href := "https://github.com/Aliics/open-redactle",
-        fontSize := "12px",
+        fontSize := "14px",
         marginTop := "1rem",
         padding := "0.5rem 0",
         border := solidBorder(),
+        borderRadius := "0.5rem",
 
         "github.com/aliics/openredactle",
       ),
@@ -49,14 +51,14 @@ object StartMenu:
         value <-- gameIdInput,
         onInput.mapToValue --> gameIdInput,
       ),
-      button(buttonStyle(), "Join"),
+      button(colored(), "Join"),
     )
 
   private def renderStartElement =
     div(
       p("Start a new game"),
       button(
-        buttonStyle(),
+        colored(),
         width := "6rem",
 
         onClick --> (_ => Game.connect()),

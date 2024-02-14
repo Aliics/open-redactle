@@ -5,17 +5,13 @@ import com.raquo.laminar.modifiers.KeySetter
 
 val userSelect: StyleProp[String] = styleProp("user-select")
 
-def solidBorder(color: String = Colors.black): String =
+def solidBorder(color: String = Colors.black2): String =
   s"solid 1px $color"
 
-def buttonStyle(fgColor: String = Colors.white, bgColor: String = Colors.black): Seq[KeySetter.StyleSetter] =
+def colored(fgColor: String = Colors.white, bgColor: String = Colors.black): Seq[KeySetter.StyleSetter] =
   Seq(
-    cursor := "pointer",
     color := fgColor,
     backgroundColor := bgColor,
-    marginLeft := "0.5rem",
-    border := "none",
-    padding := "0.25rem 0.5rem",
   )
 
 def centeredScreen: Seq[KeySetter.StyleSetter] =
@@ -37,17 +33,19 @@ def layoutFlex(direction: String = "default"): Seq[KeySetter.StyleSetter] =
 
 object Colors:
   val black = "var(--black)"
+  val black2 = "var(--black2)"
   val white = "var(--white)"
   val mainBackground = "var(--main-background)"
-  val highlightedWord = "var(--highlighted-word)"
-  val highlightedHintWord = "var(--highlighted-hint-word)"
-  val correctWord = "var(--correct-word)"
-  val hintWord = "var(--hint-word)"
   val danger = "var(--danger)"
   val action = "var(--action)"
   val actionHeld = "var(--action-held)"
   val secretWord = "var(--secret-word)"
   val hintBlock = "var(--hint-block)"
+
+  private val highlightedWord = "var(--highlighted-word)"
+  private val highlightedHintWord = "var(--highlighted-hint-word)"
+  private val correctWord = "var(--correct-word)"
+  private val hintWord = "var(--hint-word)"
 
   def highlightColor(isHint: Boolean): String =
     if isHint then Colors.highlightedHintWord
