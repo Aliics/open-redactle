@@ -5,10 +5,10 @@ import com.raquo.laminar.modifiers.KeySetter
 
 val userSelect: StyleProp[String] = styleProp("user-select")
 
-def solidBorder(color: String = Colors.black2): String =
+def solidBorder(color: String = Colors.tertiary): String =
   s"solid 1px $color"
 
-def colored(fgColor: String = Colors.white, bgColor: String = Colors.black): Seq[KeySetter.StyleSetter] =
+def colored(fgColor: String = Colors.primary, bgColor: String = Colors.secondary): Seq[KeySetter.StyleSetter] =
   Seq(
     color := fgColor,
     backgroundColor := bgColor,
@@ -32,9 +32,9 @@ def layoutFlex(direction: String = "default"): Seq[KeySetter.StyleSetter] =
   )
 
 object Colors:
-  val black = "var(--black)"
-  val black2 = "var(--black2)"
-  val white = "var(--white)"
+  val primary = "var(--primary)"
+  val secondary = "var(--secondary)"
+  val tertiary = "var(--tertiary)"
   val mainBackground = "var(--main-background)"
   val danger = "var(--danger)"
   val action = "var(--action)"

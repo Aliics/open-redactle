@@ -20,7 +20,6 @@ object Guesses:
       div(
         borderBottom := solidBorder(),
         fontSize := "15px",
-        color := "dimgray",
         padding := "0.2rem 1rem",
         layoutFlex(),
         columnGap := "1rem",
@@ -99,7 +98,6 @@ object Guesses:
 
       span(
         fontSize := "15px",
-        color := "grey",
         marginRight := "0.5rem",
 
         index + 1,

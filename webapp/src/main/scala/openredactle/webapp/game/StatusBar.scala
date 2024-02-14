@@ -2,8 +2,8 @@ package openredactle.webapp.game
 
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.{Colors, colored, solidBorder}
 import openredactle.shared.let
+import openredactle.webapp.{Colors, colored, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
@@ -28,7 +28,7 @@ object StatusBar:
       alignItems := "center",
       justifyContent := "space-between",
       padding := "0 1rem",
-      height := "2.5rem",
+      height := "3rem",
 
       span(
         fontSize := "16px",

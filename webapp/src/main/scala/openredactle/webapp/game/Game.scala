@@ -44,7 +44,7 @@ object Game:
         Seq(
           div(
             layoutFlex(),
-            maxHeight := "calc(100% - 2.5rem)", // Sort of a hack for the status bar.
+            maxHeight := "calc(100% - 3rem)", // Sort of a hack for the status bar.
             flexGrow := "1",
 
             Article.renderElement,

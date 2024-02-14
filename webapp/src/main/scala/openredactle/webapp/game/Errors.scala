@@ -10,14 +10,13 @@ object Errors:
       dom.document.getElementById("app"),
       div(
         centeredScreen,
-        color := Colors.white,
-        backgroundColor := Colors.black,
+        color := Colors.primary,
+        backgroundColor := Colors.secondary,
 
         h1("Oh noes!"),
         p(errorMessage),
         a(
           href := "/",
-          color := "lightblue",
 
           "Go home",
         ),
