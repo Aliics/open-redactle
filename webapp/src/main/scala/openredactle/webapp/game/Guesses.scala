@@ -1,10 +1,11 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
+import openredactle.shared.data.Emoji
 import openredactle.webapp.*
 
 object Guesses:
-  private type Guess = (String, Int, Boolean)
+  private type Guess = (Emoji, String, Int, Boolean)
 
   val guessedWords: Var[List[Guess]] = Var(List())
 
@@ -26,7 +27,7 @@ object Guesses:
 
         children <-- guessedWords.signal.map: guessedWords =>
           span(s"Guesses: ${guessedWords.size}") ::
-            span(s"Correct: ${guessedWords.count(w => w._2 > 0 && !w._3)}") ::
+            span(s"Correct: ${guessedWords.count(w => w._3 > 0 && !w._4)}") ::
             Nil
       ),
 
@@ -69,7 +70,7 @@ object Guesses:
     )
 
   private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]) =
-    val (guessed, matched, isHint) = initial
+    val (emoji, guessed, matched, isHint) = initial
     val isCorrectGuess = matched > 0
     div(
       layoutFlex(),
@@ -100,14 +101,14 @@ object Guesses:
         fontSize := "15px",
         marginRight := "0.5rem",
 
-        index + 1,
+        emoji.code,
       ),
       div(
         layoutFlex(),
         justifyContent := "space-between",
         width := "100%",
 
-        span(child.text <-- guessSignal.map(_._1)),
         span(child.text <-- guessSignal.map(_._2)),
+        span(child.text <-- guessSignal.map(_._3)),
       ),
     )

@@ -1,6 +1,8 @@
 package openredactle.shared.data
 
-enum Emoji(val code: String):
+import upickle.default.ReadWriter
+
+enum Emoji(val code: String) derives ReadWriter:
   case Dog extends Emoji("\uD83D\uDC36")
   case Cat extends Emoji("\uD83D\uDC31")
   case Mouse extends Emoji("\uD83D\uDC2D")

@@ -6,14 +6,21 @@ import openredactle.shared.random
 
 private val emojiKey = "emoji"
 
-def storedEmoji(): String =
+def storedEmoji: Emoji = Emoji valueOf storedEmojiString
+
+def storedEmojiString: String =
   localStorage.getItem(emojiKey)
 
 def storeEmoji(emoji: Emoji): Unit =
   localStorage.setItem(emojiKey, emoji.toString)
 
 def ensureRandomEmojiChosen(): Unit =
-  Option(storedEmoji()) match
-    case Some(value) => println(s"Emoji is chosen: $value")
+  Option(storedEmojiString) match
+    case Some(value) =>
+      if Emoji.values.exists(_.toString == value)
+      then println(s"Emoji is chosen: $value")
+      else
+        localStorage.removeItem(emojiKey)
+        ensureRandomEmojiChosen()
     case None =>
       storeEmoji(Emoji.values.random)

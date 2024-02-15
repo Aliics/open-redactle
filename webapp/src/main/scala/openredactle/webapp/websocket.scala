@@ -18,9 +18,9 @@ def connectWs(gameId: Option[String] = None): WebSocket =
   ws.onopen = _ =>
     gameId match
       case Some(gameId) =>
-        ws.send(write(JoinGame(gameId)))
+        ws.send(write(JoinGame(storedEmoji, gameId)))
       case None =>
-        ws.send(write(StartGame()))
+        ws.send(write(StartGame(storedEmoji)))
 
   ws.onmessage = msg =>
     val message = read[Message](msg.data.asInstanceOf[String])
@@ -34,11 +34,11 @@ def connectWs(gameId: Option[String] = None): WebSocket =
         Article.articleData.update(_ => articleData)
         Article.secretPositions.update(_ => secretPositions)
         Guesses.guessedWords.update(_ => guesses)
-      case NewGuess(guess, matchedCount, isHint) =>
-        Guesses.guessedWords.update(_ :+ (guess, matchedCount, isHint))
+      case NewGuess(emoji, guess, matchedCount, isHint) =>
+        Guesses.guessedWords.update(_ :+ (emoji, guess, matchedCount, isHint))
       case GuessMatch(word, matches) =>
         Article.updateMatched(word, matches)
-      case AlreadyGuessed(guess, isHint) =>
+      case AlreadyGuessed(_, guess, isHint) =>
         Article.selectedGuess.update(_ => Some(guess -> isHint))
       case PlayerJoined() =>
         StatusBar.playerCount.update(_ + 1)

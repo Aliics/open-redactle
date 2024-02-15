@@ -3,6 +3,7 @@ import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
 ThisBuild / scalaVersion := Versions.scala
 ThisBuild / assemblyMergeStrategy := { _ => MergeStrategy.first }
+ThisBuild / scalacOptions ++= Seq("-Xmax-inlines", "128")
 
 lazy val root = (project in file("."))
   .aggregate(webapp, server, shared.jvm, shared.js)

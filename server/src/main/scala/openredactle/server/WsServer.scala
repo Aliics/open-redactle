@@ -1,8 +1,10 @@
 package openredactle.server
 
 import com.typesafe.scalalogging.Logger
+import openredactle.server.data.ConnectedPlayer
 import openredactle.server.games.{Game, Games}
 import openredactle.server.metrics.{CloudWatchEmitter, Metric}
+import openredactle.shared.data.Emoji
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.*
 import org.java_websocket.WebSocket
@@ -26,19 +28,19 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
     connCount.decrementAndGet()
     Games.findPlayerGame(conn) match
       case Some(game) =>
-        game.disconnect(conn)
+        game.disconnectByConn(conn)
       case None =>
         logger.info("Disconnected player not in game")
 
   override def onMessage(conn: WebSocket, message: String): Unit =
-    def connectToGame(game: Game): Unit =
-      val playerCount = game.connect(conn)
+    def connectToGame(emoji: Emoji, game: Game): Unit =
+      val playerCount = game.connect(ConnectedPlayer(emoji, conn))
       logger.info(s"Connected player to ${game.id}")
       conn.send(Message.GameState(
         gameId = game.id,
         playerCount = playerCount,
         articleData = game.articleData,
-        guesses = game.guessedWords.asScala.map(g => (g.word, g.matchedCount, g.isHint)).toList,
+        guesses = game.guessedWords.asScala.map(g => (g.player.emoji, g.word, g.matchedCount, g.isHint)).toList,
         hintsAvailable = game.hintsAvailable.get(),
         secretPositions = game.secretPositions,
       ))
@@ -47,11 +49,11 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
 
     val msg = read[Message](message)
     msg match
-      case Message.StartGame() =>
+      case Message.StartGame(emoji) =>
         logger.info("Starting new game!")
-        connectToGame(Games.create())
-      case Message.JoinGame(gameId) =>
-        Games.withGame(gameId)(connectToGame)(sendGameNotFoundError(gameId))
+        connectToGame(emoji, Games.create())
+      case Message.JoinGame(emoji, gameId) =>
+        Games.withGame(gameId)(connectToGame(emoji, _))(sendGameNotFoundError(gameId))
       case Message.AddGuess(gameId, guess) =>
         Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(gameId))
       case Message.RequestHint(gameId, section, num) =>

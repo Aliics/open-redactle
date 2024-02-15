@@ -6,7 +6,7 @@ import openredactle.webapp.*
 
 object StartMenu:
   private val gameIdInput = Var("")
-  private lazy val emojiSelected = Var(storedEmoji())
+  private lazy val emojiSelected = Var(storedEmojiString)
 
   lazy val renderElement: Element =
     div(
@@ -17,22 +17,14 @@ object StartMenu:
 
       h1("Open Redactle"),
       div(
-        layoutFlex(direction = "column"),
-        alignItems := "center",
-        padding := "1rem",
-        border := solidBorder(),
-        borderRadius := "0.5rem",
+        cls := "card",
 
         label(forId := "emoji", "Choose an emoji"),
         emojiSelectElement,
       ),
       div(
-        layoutFlex("column"),
-        alignItems := "center",
-        padding := "1rem",
+        cls := "card",
         marginTop := "1rem",
-        border := solidBorder(),
-        borderRadius := "0.5rem",
 
         renderJoinFormElement,
         renderDividingElement,
@@ -40,11 +32,9 @@ object StartMenu:
       ),
       a(
         href := "https://github.com/Aliics/open-redactle",
+        cls := "card",
         fontSize := "14px",
         marginTop := "1rem",
-        padding := "0.5rem 0",
-        border := solidBorder(),
-        borderRadius := "0.5rem",
 
         "github.com/aliics/openredactle",
       ),

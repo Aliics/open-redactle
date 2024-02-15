@@ -26,13 +26,13 @@ object Games extends ImplicitLazyLogger:
       case None => otherwise
 
   def findPlayerGame(conn: WebSocket): Option[Game] =
-    games.asScala.find(_.connectedPlayers.contains(conn))
+    games.asScala.find(_.connectedPlayers.asScala.exists(_.conn == conn))
 
   def runGameReaper()(using ExecutionContext): Future[Unit] =
     for
       _ <- Future:
         val deadGames = games.asScala.filter: game =>
-          val emptyGameTtl = game.lastDisconnectTime.get() + 5 * 60_000
+          val emptyGameTtl = game.lastConnectionTime.get() + 5 * 60_000
           game.connectedPlayers.isEmpty && emptyGameTtl < Instant.now().toEpochMilli
         games removeAll deadGames.asJavaCollection
         if deadGames.nonEmpty then

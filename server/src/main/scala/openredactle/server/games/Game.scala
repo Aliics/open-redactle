@@ -1,6 +1,6 @@
 package openredactle.server.games
 
-import openredactle.server.data.{Guess, freeWords, getMatchingGuessData, randomWords}
+import openredactle.server.data.*
 import openredactle.server.send
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
@@ -18,8 +18,8 @@ import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 
 class Game extends ImplicitLazyLogger:
-  private[games] val connectedPlayers = ConcurrentLinkedQueue[WebSocket]()
-  private[games] val lastDisconnectTime = AtomicLong(Instant.now().toEpochMilli)
+  private[games] val connectedPlayers = ConcurrentLinkedQueue[ConnectedPlayer]()
+  private[games] val lastConnectionTime = AtomicLong(Instant.now().toEpochMilli)
 
   private val gameWon = AtomicBoolean(false)
   private val fullArticleData = let:
@@ -28,7 +28,7 @@ class Game extends ImplicitLazyLogger:
     logger.info(s"Selected article: $r")
     Game.s3Storage.getArticleByIndex(i)
 
-  val guessedWords: ConcurrentLinkedQueue[Guess] = ConcurrentLinkedQueue[Guess]()
+  val guessedWords: ConcurrentLinkedQueue[PlayerGuess] = ConcurrentLinkedQueue[PlayerGuess]()
   val hintsAvailable: AtomicInteger = AtomicInteger(3)
 
   val id: String =
@@ -36,30 +36,27 @@ class Game extends ImplicitLazyLogger:
       .map(_ => randomWords.random)
       .mkString("-")
 
-  def connect(conn: WebSocket): Int =
+  def connect(connectedPlayer: ConnectedPlayer): Int =
+    lastConnectionTime.set(Instant.now().toEpochMilli)
     broadcast(Message.PlayerJoined())
-    connectedPlayers.add(conn)
+    connectedPlayers.add(connectedPlayer)
     connectedPlayers.size
 
-  def disconnect(conn: WebSocket): Unit =
-    lastDisconnectTime.set(Instant.now().toEpochMilli)
-    connectedPlayers.remove(conn)
+  def disconnectByConn(conn: WebSocket): Unit =
+    lastConnectionTime.set(Instant.now().toEpochMilli)
+    connectedPlayers.remove(getConnectedPlayerByConn(conn))
     broadcast(Message.PlayerLeft())
-
-  private def broadcast(message: Message): Unit =
-    connectedPlayers.asScala.foreach(_.send(message))
 
   def addGuess(rawGuess: String, isHint: Boolean = false)(using conn: WebSocket): Unit =
     val guess = rawGuess.trim
     val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
-    val alreadyGuessed = guessedWords.asScala.find(g => roughEquals(g._1)(guess))
+    val alreadyGuessed = guessedWords.asScala.find(g => roughEquals(g.word)(guess))
     if !guess.isBlank && !isFreeWord && alreadyGuessed.isEmpty then
       val (matches, matchedCount) = getMatchingGuessData(fullArticleData)(guess)
 
-      guessedWords.add(Guess(guess, matchedCount, isHint))
-
+      guessedWords.add(PlayerGuess(conn, guess, matchedCount, isHint))
       logger.info(s"""${if isHint then "Hint" else "Guess"} in $id: "$guess"""")
-      broadcast(NewGuess(guess, matchedCount, isHint))
+      broadcast(NewGuess(conn.emoji, guess, matchedCount, isHint))
 
       if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
         matches.foreach:
@@ -70,8 +67,8 @@ class Game extends ImplicitLazyLogger:
         broadcast(GameWon(fullArticleData))
         gameWon.set(true)
     else if alreadyGuessed.isDefined then
-      val Guess(word, _, isHint) = alreadyGuessed.get
-      conn.send(AlreadyGuessed(word, isHint))
+      val PlayerGuess(_, word, _, isHint) = alreadyGuessed.get
+      conn.send(AlreadyGuessed(conn.emoji, word, isHint))
 
   def requestHint(section: Int, num: Int)(using WebSocket): Unit =
     val avail = hintsAvailable.get()
@@ -91,7 +88,7 @@ class Game extends ImplicitLazyLogger:
         articleData.copy(words = articleData.words.collect:
           case p: Punctuation => p
           case known@Known(str, hasSpace) =>
-            val matchedGuessedWords = guessedWords.asScala.filter(_.matchedCount > 0).map(_._1)
+            val matchedGuessedWords = guessedWords.asScala.filter(_.matchedCount > 0).map(_.word)
             if (freeWords ++ matchedGuessedWords).exists(roughEquals(_)(str)) then known
             else Unknown(str.length, hasSpace)
         )
@@ -106,6 +103,13 @@ class Game extends ImplicitLazyLogger:
       val matched = articleData.words.zipWithIndex.collect:
         case (Word.Known(str, _), i) if secrets.exists(roughEquals(_)(str)) => i
       i -> matched
+
+  private def broadcast(message: Message): Unit =
+    connectedPlayers.asScala.foreach(_.conn.send(message))
+
+  private implicit def getConnectedPlayerByConn(conn: WebSocket): ConnectedPlayer =
+    connectedPlayers.asScala.find(_.conn == conn).get // unsafe
+end Game
 
 object Game:
   private val s3Storage = S3Storage()
