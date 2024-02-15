@@ -4,6 +4,8 @@ import openredactle.shared.data.Emoji
 import org.scalajs.dom.window.localStorage
 import openredactle.shared.random
 
+import scala.annotation.tailrec
+
 private val emojiKey = "emoji"
 
 def storedEmoji: Emoji = Emoji valueOf storedEmojiString
@@ -14,7 +16,7 @@ def storedEmojiString: String =
 def storeEmoji(emoji: Emoji): Unit =
   localStorage.setItem(emojiKey, emoji.toString)
 
-def ensureRandomEmojiChosen(): Unit =
+@tailrec def ensureRandomEmojiChosen(): Unit =
   Option(storedEmojiString) match
     case Some(value) =>
       if Emoji.values.exists(_.toString == value)
