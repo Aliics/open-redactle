@@ -64,7 +64,7 @@ object StatusBar:
     )
 
   private def copyShareUrl(_e: MouseEvent): Unit =
-    val shareUrl = s"${window.location.host}/game/${Game.gameId.now().get}"
+    val shareUrl = s"https://${window.location.host}/game/${Game.gameId.now().get}"
     window.navigator.clipboard.writeText(shareUrl)
 
     copyLinkButtonText.update(_ => copyButtonDoneText)
