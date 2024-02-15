@@ -55,13 +55,17 @@ body, #app {
     font-family: "Ubuntu Mono", monospace;
 }
 
-input {
+input, select {
     background-color: var(--secondary2);
     height: 1rem;
     border: solid 2px var(--main-background);
     user-focus: none;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
+}
+
+select {
+    height: 2rem;
 }
 
 input:focus, button:hover {

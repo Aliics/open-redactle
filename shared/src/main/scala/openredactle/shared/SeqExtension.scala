@@ -1,4 +1,4 @@
-package openredactle.server
+package openredactle.shared
 
 import scala.util.Random
 

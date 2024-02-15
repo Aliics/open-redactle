@@ -1,14 +1,14 @@
 package openredactle.server.games
 
 import openredactle.server.data.{Guess, freeWords, getMatchingGuessData, randomWords}
-import openredactle.server.{random, send}
+import openredactle.server.send
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Word}
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.*
 import openredactle.shared.stored.S3Storage
-import openredactle.shared.{data, let, roughEquals}
+import openredactle.shared.{data, let, random, roughEquals}
 import org.java_websocket.WebSocket
 
 import java.time.Instant
