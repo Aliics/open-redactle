@@ -3,12 +3,12 @@ package openredactle.webapp.startmenu
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.let
-import openredactle.webapp.element.toggleSwitch
+import openredactle.webapp.element.{RenderableElement, toggleSwitch}
 import openredactle.webapp.layoutFlex
 import org.scalajs.dom.window.localStorage
 import org.scalajs.dom.{document, window}
 
-object ThemeSwitch:
+object ThemeSwitch extends RenderableElement:
   private val themeKey = "theme"
   private val darkThemeKey = "dark-theme"
 

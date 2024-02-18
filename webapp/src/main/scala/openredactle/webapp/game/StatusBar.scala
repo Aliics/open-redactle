@@ -3,12 +3,13 @@ package openredactle.webapp.game
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.let
+import openredactle.webapp.element.RenderableElement
 import openredactle.webapp.{Colors, colored, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
 
-object StatusBar:
+object StatusBar extends RenderableElement:
   private val copyLinkButtonPromptText = "Copy Link"
   private val copyButtonDoneText = "Copied!"
 

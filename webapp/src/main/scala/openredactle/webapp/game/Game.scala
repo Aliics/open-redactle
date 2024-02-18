@@ -5,11 +5,12 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.webapp.*
+import openredactle.webapp.element.{RenderableElement, renderableElementToElement}
 import openredactle.webapp.startmenu.StartMenu
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.write
 
-object Game:
+object Game extends RenderableElement:
   val gameId: Var[Option[String]] = Var(None)
 
   private val gameConnection: Var[Option[WebSocket]] = Var:
@@ -39,7 +40,7 @@ object Game:
       children <-- renderGameScreen
     )
 
-  private val renderGameScreen =
+  private val renderGameScreen: Signal[Seq[Element]] =
     gameConnection.signal.map:
       case Some(_) =>
         Seq(
@@ -48,16 +49,16 @@ object Game:
             maxHeight := "calc(100% - 3rem)", // Sort of a hack for the status bar.
             flexGrow := "1",
 
-            Article.renderElement,
-            Guesses.renderElement,
+            Article,
+            Guesses,
           ),
 
-          StatusBar.renderElement,
+          StatusBar,
         )
       case None =>
         Seq(
           div(
             centeredScreen,
-            StartMenu.renderElement,
+            StartMenu,
           ),
         )

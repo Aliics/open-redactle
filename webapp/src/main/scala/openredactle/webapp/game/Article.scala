@@ -5,10 +5,11 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.ArticleData.*
 import openredactle.shared.data.{ArticleData, Word}
+import openredactle.webapp.element.RenderableElement
 import openredactle.webapp.game.article.renderWordElement
 import openredactle.webapp.solidBorder
 
-object Article:
+object Article extends RenderableElement:
   val articleData: Var[Seq[ArticleData]] = Var(Nil)
   val selectedGuess: Var[Option[(String, Boolean)]] = Var(None)
   val secretPositions: Var[Seq[(Int, Seq[Int])]] = Var(Nil)

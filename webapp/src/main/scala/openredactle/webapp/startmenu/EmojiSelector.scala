@@ -3,11 +3,12 @@ package openredactle.webapp.startmenu
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Emoji
 import openredactle.shared.random
+import openredactle.webapp.element.RenderableElement
 import org.scalajs.dom.window.localStorage
 
 import scala.annotation.tailrec
 
-object EmojiSelector:
+object EmojiSelector extends RenderableElement:
   private val emojiKey = "emoji"
 
   private lazy val emojiSelected = Var:

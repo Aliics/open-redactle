@@ -3,8 +3,9 @@ package openredactle.webapp.startmenu
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.*
 import openredactle.webapp.game.Game
+import openredactle.webapp.element.{RenderableElement, renderableElementToElement}
 
-object StartMenu:
+object StartMenu extends RenderableElement:
   private val gameIdInput = Var("")
 
   lazy val renderElement: Element =
@@ -21,8 +22,8 @@ object StartMenu:
         alignItems := "center",
         cls := "card",
 
-        EmojiSelector.renderElement,
-        ThemeSwitch.renderElement,
+        EmojiSelector,
+        ThemeSwitch,
       ),
       div(
         cls := "card",

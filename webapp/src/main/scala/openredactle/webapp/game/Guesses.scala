@@ -3,8 +3,9 @@ package openredactle.webapp.game
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Emoji
 import openredactle.webapp.*
+import openredactle.webapp.element.RenderableElement
 
-object Guesses:
+object Guesses extends RenderableElement:
   private type Guess = (Emoji, String, Int, Boolean)
 
   val guessedWords: Var[List[Guess]] = Var(List())
