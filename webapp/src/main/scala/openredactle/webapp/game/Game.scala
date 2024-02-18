@@ -5,6 +5,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.webapp.*
+import openredactle.webapp.startmenu.StartMenu
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.write
 

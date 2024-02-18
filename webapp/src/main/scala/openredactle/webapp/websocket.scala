@@ -4,6 +4,7 @@ import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.*
 import openredactle.webapp.game.*
+import openredactle.webapp.startmenu.EmojiSelector
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.{read, write}
 
@@ -18,9 +19,9 @@ def connectWs(gameId: Option[String] = None): WebSocket =
   ws.onopen = _ =>
     gameId match
       case Some(gameId) =>
-        ws.send(write(JoinGame(storedEmoji, gameId)))
+        ws.send(write(JoinGame(EmojiSelector.storedEmoji, gameId)))
       case None =>
-        ws.send(write(StartGame(storedEmoji)))
+        ws.send(write(StartGame(EmojiSelector.storedEmoji)))
 
   ws.onmessage = msg =>
     val message = read[Message](msg.data.asInstanceOf[String])

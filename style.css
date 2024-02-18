@@ -1,4 +1,4 @@
-:root {
+:root[theme='light'] {
     --primary: rgb(250, 250, 250);
     --secondary: rgb(93, 93, 93);
     --secondary2: rgb(231, 231, 231);
@@ -17,25 +17,23 @@
     --hint-block: rgb(11, 74, 132);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary: rgb(255, 255, 255);
-        --secondary: rgb(50, 50, 50);
-        --secondary2: rgb(50, 50, 50);
-        --tertiary: rgb(52, 52, 52);
-        --main-foreground: rgb(255, 255, 255);
-        --main-background: rgb(24, 24, 24);
-        --highlighted-word: rgb(72, 126, 58);
-        --highlighted-hint-word: rgb(46, 102, 210);
-        --correct-word: rgb(44, 70, 33);
-        --hint-word: rgb(37, 51, 82);
-        --accent: rgb(74, 0, 255);
-        --danger: rgb(136, 0, 0);
-        --action: rgb(44, 72, 169);
-        --action-held: rgb(61, 95, 211);
-        --secret-word: rgb(200, 40, 30);
-        --hint-block: rgb(11, 74, 132);
-    }
+:root[theme='dark'] {
+    --primary: rgb(255, 255, 255);
+    --secondary: rgb(50, 50, 50);
+    --secondary2: rgb(50, 50, 50);
+    --tertiary: rgb(52, 52, 52);
+    --main-foreground: rgb(255, 255, 255);
+    --main-background: rgb(24, 24, 24);
+    --highlighted-word: rgb(72, 126, 58);
+    --highlighted-hint-word: rgb(46, 102, 210);
+    --correct-word: rgb(44, 70, 33);
+    --hint-word: rgb(37, 51, 82);
+    --accent: rgb(74, 0, 255);
+    --danger: rgb(136, 0, 0);
+    --action: rgb(44, 72, 169);
+    --action-held: rgb(61, 95, 211);
+    --secret-word: rgb(200, 40, 30);
+    --hint-block: rgb(11, 74, 132);
 }
 
 @font-face {
@@ -54,6 +52,15 @@ body, #app {
     height: 100vh;
     overflow: hidden;
     font-family: "Ubuntu Mono", monospace;
+}
+
+input[type=checkbox] {
+    appearance: none;
+    width: 2.5rem;
+    height: 1rem;
+    padding: 0.6rem 0.1rem;
+    border-radius: 1rem;
+    cursor: pointer;
 }
 
 input, select {

@@ -7,8 +7,6 @@ import openredactle.shared.roughEquals
 import openredactle.webapp.game.{Article, Game}
 import openredactle.webapp.{Colors, solidBorder}
 
-type WordFoldState = (Seq[Element], Option[(String, Boolean)])
-
 def renderWordElement(word: Word, section: Int, num: Int): Element =
   def spaceNodeWhen(cond: => Boolean): Node = if cond then " " else emptyNode
 

@@ -1,12 +1,11 @@
-package openredactle.webapp.game
+package openredactle.webapp.startmenu
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.shared.data.Emoji
 import openredactle.webapp.*
+import openredactle.webapp.game.Game
 
 object StartMenu:
   private val gameIdInput = Var("")
-  private lazy val emojiSelected = Var(storedEmojiString)
 
   lazy val renderElement: Element =
     div(
@@ -17,10 +16,13 @@ object StartMenu:
 
       h1("Open Redactle"),
       div(
+        layoutFlex(direction = "row"),
+        justifyContent := "space-evenly",
+        alignItems := "center",
         cls := "card",
 
-        label(forId := "emoji", "Choose an emoji"),
-        emojiSelectElement,
+        EmojiSelector.renderElement,
+        ThemeSwitch.renderElement,
       ),
       div(
         cls := "card",
@@ -39,29 +41,6 @@ object StartMenu:
         "github.com/aliics/openredactle",
       ),
     )
-
-  private def emojiSelectElement =
-    val sel = select(
-      idAttr := "emoji",
-      fontSize := "22px",
-      height := "3rem",
-      width := "5rem",
-      marginTop := "1rem",
-
-      value <-- emojiSelected,
-
-      Emoji.values.map: emoji =>
-        option(
-          value := emoji.toString,
-          emoji.code,
-        ),
-    )
-
-    sel.ref.onchange = _ =>
-      emojiSelected.update(_ => sel.ref.value)
-      storeEmoji(Emoji valueOf sel.ref.value)
-
-    sel
 
   private def renderJoinFormElement =
     form(
