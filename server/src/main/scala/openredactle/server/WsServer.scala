@@ -47,8 +47,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
 
     given WebSocket = conn
 
-    val msg = read[Message](message)
-    msg match
+    read[Message](message) match
       case Message.StartGame(emoji) =>
         logger.info("Starting new game!")
         connectToGame(emoji, Games.create())

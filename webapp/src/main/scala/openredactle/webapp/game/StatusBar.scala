@@ -41,7 +41,7 @@ object StatusBar:
 
         button(
           colored(),
-          width := "6rem",
+          width := "7rem",
 
           onClick --> copyShareUrl,
           child.text <-- copyLinkButtonText,

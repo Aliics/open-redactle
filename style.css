@@ -40,7 +40,8 @@
 
 @font-face {
     font-family: 'Ubuntu Mono';
-    src: url('./public/UbuntuMono-Regular.ttf') format('truetype');
+    /*noinspection CssUnknownTarget*/
+    src: url('/UbuntuMono-Regular.ttf') format('truetype');
 }
 
 * {
