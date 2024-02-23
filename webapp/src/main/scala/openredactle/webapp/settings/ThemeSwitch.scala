@@ -1,4 +1,4 @@
-package openredactle.webapp.startmenu
+package openredactle.webapp.settings
 
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}

@@ -1,4 +1,4 @@
-package openredactle.webapp.startmenu
+package openredactle.webapp.settings
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Emoji
@@ -34,6 +34,7 @@ object EmojiSelector extends RenderableElement:
       fontSize := "16px",
       height := "2.5rem",
       width := "5rem",
+      cursor := "pointer",
 
       value <-- emojiSelected,
 

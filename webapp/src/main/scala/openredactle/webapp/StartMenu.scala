@@ -1,9 +1,10 @@
-package openredactle.webapp.startmenu
+package openredactle.webapp
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.*
-import openredactle.webapp.game.Game
 import openredactle.webapp.element.{RenderableElement, given}
+import openredactle.webapp.game.Game
+import openredactle.webapp.settings.{EmojiSelector, ThemeSwitch}
 
 object StartMenu extends RenderableElement:
   private val gameIdInput = Var("")

@@ -6,7 +6,6 @@ import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.webapp.*
 import openredactle.webapp.element.{RenderableElement, given}
-import openredactle.webapp.startmenu.StartMenu
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.write
 

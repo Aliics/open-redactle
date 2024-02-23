@@ -5,7 +5,8 @@ import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.let
 import openredactle.webapp.element.RenderableElement
 import openredactle.webapp.element.renderableElementToElement
-import openredactle.webapp.{Colors, SettingsPopup, colored, solidBorder}
+import openredactle.webapp.settings.SettingsPopup
+import openredactle.webapp.{Colors, colored, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout

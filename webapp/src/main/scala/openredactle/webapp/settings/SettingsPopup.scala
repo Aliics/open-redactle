@@ -1,8 +1,8 @@
-package openredactle.webapp
+package openredactle.webapp.settings
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.element.{RenderableElement, given}
-import openredactle.webapp.startmenu.{EmojiSelector, ThemeSwitch}
+import openredactle.webapp.{Colors, colored, rowGap}
 import org.scalajs.dom.{document, window}
 
 object SettingsPopup extends RenderableElement:

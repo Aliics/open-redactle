@@ -76,11 +76,6 @@ select {
     height: 2rem;
 }
 
-input:focus, button:hover {
-    outline: none;
-    border: solid 2px var(--accent);
-}
-
 a:hover {
     color: var(--accent);
 }
@@ -90,6 +85,11 @@ button {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     border: solid 2px var(--main-background);
+}
+
+input:focus, button:hover:not(:has(*:hover)) {
+    outline: none;
+    border: solid 2px var(--accent);
 }
 
 .card {

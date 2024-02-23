@@ -4,6 +4,6 @@ import scala.scalajs.js.annotation.JSGlobal
 import scalajs.js
 
 @js.native
-@JSGlobal("Settings")
-object Settings extends js.Object:
+@JSGlobal("Config")
+object Config extends js.Object:
   val wsServerUrl: String = js.native

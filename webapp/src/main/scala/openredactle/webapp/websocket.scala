@@ -4,14 +4,14 @@ import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.*
 import openredactle.webapp.game.*
-import openredactle.webapp.startmenu.EmojiSelector
+import openredactle.webapp.settings.EmojiSelector
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.{read, write}
 
 import scala.scalajs.js
 
 def connectWs(gameId: Option[String] = None): WebSocket =
-  val ws = new WebSocket(Settings.wsServerUrl)
+  val ws = new WebSocket(Config.wsServerUrl)
 
   ws.onerror = _ =>
     Errors.show("Could not connect to server.")
