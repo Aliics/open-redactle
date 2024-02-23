@@ -4,6 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.modifiers.KeySetter
 
 val userSelect: StyleProp[String] = styleProp("user-select")
+val rowGap: StyleProp[String] = styleProp("row-gap")
 
 def solidBorder(color: String = Colors.tertiary): String =
   s"solid 1px $color"

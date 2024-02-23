@@ -5,7 +5,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.webapp.*
-import openredactle.webapp.element.{RenderableElement, renderableElementToElement}
+import openredactle.webapp.element.{RenderableElement, given}
 import openredactle.webapp.startmenu.StartMenu
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.write
@@ -20,7 +20,7 @@ object Game extends RenderableElement:
       case _ => None
 
   def connect(gameId: Option[String] = None): Unit =
-    gameConnection.update(_ => Some(connectWs(gameId)))
+    gameConnection.set(Some(connectWs(gameId)))
 
   def addGuess(guess: String): Unit =
     gameConnection.now().foreach: ws =>
@@ -30,7 +30,7 @@ object Game extends RenderableElement:
     gameConnection.now().foreach: ws =>
       ws.send(write(Message.RequestHint(gameId.now().get, section, num)))
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     div(
       layoutFlex("column"),
       height := "100vh",

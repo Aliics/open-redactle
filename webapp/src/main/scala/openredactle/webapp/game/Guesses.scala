@@ -10,7 +10,7 @@ object Guesses extends RenderableElement:
 
   val guessedWords: Var[List[Guess]] = Var(List())
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     div(
       width := "26rem",
       height := "100%",
@@ -52,7 +52,7 @@ object Guesses extends RenderableElement:
 
       onSubmit.preventDefault.mapTo(guessInput.now()) --> { w =>
         Game.addGuess(w)
-        guessInput.update(_ => "")
+        guessInput.set("")
       },
 
       input(

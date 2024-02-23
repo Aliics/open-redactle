@@ -47,7 +47,7 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
           if !Article.inHintMode.now() || isSecret then showingLength.update(!_)
           else
             Game.requestHint(section, num)
-            Article.inHintMode.update(_ => false)
+            Article.inHintMode.set(false)
           ),
 
         child <-- renderText,

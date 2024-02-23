@@ -3,12 +3,12 @@ package openredactle.webapp.startmenu
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.*
 import openredactle.webapp.game.Game
-import openredactle.webapp.element.{RenderableElement, renderableElementToElement}
+import openredactle.webapp.element.{RenderableElement, given}
 
 object StartMenu extends RenderableElement:
   private val gameIdInput = Var("")
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     div(
       layoutFlex("column"),
       alignSelf := "center",

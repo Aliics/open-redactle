@@ -29,24 +29,24 @@ def connectWs(gameId: Option[String] = None): WebSocket =
       case GameState(gameId, playerCount, articleData, guesses, hintsAvailable, secretPositions) =>
         window.history.replaceState((), "", s"/game/$gameId") // Make url match nicely. :)
 
-        Game.gameId.update(_ => Some(gameId))
-        StatusBar.playerCount.update(_ => playerCount)
-        StatusBar.hintsAvailable.update(_ => hintsAvailable)
-        Article.articleData.update(_ => articleData)
-        Article.secretPositions.update(_ => secretPositions)
-        Guesses.guessedWords.update(_ => guesses)
+        Game.gameId.set(Some(gameId))
+        StatusBar.playerCount.set(playerCount)
+        StatusBar.hintsAvailable.set(hintsAvailable)
+        Article.articleData.set(articleData)
+        Article.secretPositions.set(secretPositions)
+        Guesses.guessedWords.set(guesses)
       case NewGuess(emoji, guess, matchedCount, isHint) =>
         Guesses.guessedWords.update(_ :+ (emoji, guess, matchedCount, isHint))
       case GuessMatch(word, matches) =>
         Article.updateMatched(word, matches)
       case AlreadyGuessed(_, guess, isHint) =>
-        Article.selectedGuess.update(_ => Some(guess -> isHint))
+        Article.selectedGuess.set(Some(guess -> isHint))
       case PlayerJoined() =>
         StatusBar.playerCount.update(_ + 1)
       case PlayerLeft() =>
         StatusBar.playerCount.update(_ - 1)
       case GameWon(fullArticleData) =>
-        Article.articleData.update(_ => fullArticleData)
+        Article.articleData.set(fullArticleData)
       case HintUsed() =>
         StatusBar.hintsAvailable.update(_ - 1)
       case Error(errorMessage) =>

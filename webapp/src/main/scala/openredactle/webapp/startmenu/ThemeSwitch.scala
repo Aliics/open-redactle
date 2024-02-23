@@ -28,7 +28,7 @@ object ThemeSwitch extends RenderableElement:
       localStorage.setItem(darkThemeKey, isDark.toString)
       isDark
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     span(
       layoutFlex(direction = "row"),
       alignItems := "center",

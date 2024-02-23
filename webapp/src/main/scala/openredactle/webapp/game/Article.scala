@@ -15,7 +15,7 @@ object Article extends RenderableElement:
   val secretPositions: Var[Seq[(Int, Seq[Int])]] = Var(Nil)
   val inHintMode: Var[Boolean] = Var(false)
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     div(
       height := "100%",
       flexGrow := 1,

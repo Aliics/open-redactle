@@ -4,7 +4,8 @@ import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.let
 import openredactle.webapp.element.RenderableElement
-import openredactle.webapp.{Colors, colored, solidBorder}
+import openredactle.webapp.element.renderableElementToElement
+import openredactle.webapp.{Colors, SettingsPopup, colored, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
@@ -22,7 +23,7 @@ object StatusBar extends RenderableElement:
 
   private val copyLinkButtonText = Var(copyLinkButtonPromptText)
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     div(
       borderTop := solidBorder(),
       display := "flex",
@@ -57,9 +58,12 @@ object StatusBar extends RenderableElement:
             child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
           ),
         button(
-          colored(bgColor = Colors.danger),
-          onClick --> (_ => window.location.href = "/"),
-          "Leave Game",
+          colored(),
+          zIndex := 10,
+          onClick.stopPropagation --> (e => SettingsPopup.toggle()),
+          "Settings",
+
+          SettingsPopup,
         ),
       ),
     )
@@ -67,6 +71,6 @@ object StatusBar extends RenderableElement:
   private def copyShareUrl(_e: MouseEvent): Unit =
     window.navigator.clipboard.writeText(window.location.href)
 
-    copyLinkButtonText.update(_ => copyButtonDoneText)
+    copyLinkButtonText.set(copyButtonDoneText)
     setTimeout(500):
-      copyLinkButtonText.update(_ => copyLinkButtonPromptText)
+      copyLinkButtonText.set(copyLinkButtonPromptText)

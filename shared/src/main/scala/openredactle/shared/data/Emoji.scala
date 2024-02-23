@@ -7,8 +7,7 @@ import upickle.default.ReadWriter
 sealed trait Emoji(val code: String)derives ReadWriter
 object Emoji:
   def values: Seq[Emoji] = Seq(Dog, Cat, Mouse, Rabbit, Fox, Bear, Koala, Tiger, Lion, Cow, Pig, Frog, Monkey, Chicken,
-    Penguin, Chick, Duck, Eagle, Owl, Bat, Wolf, Horse, Bee, Snail, Ladybug, Ant, Turtle, Snake, Lobster, Crab, Dolphin,
-    Whale, Shark, Crocodile, Camel, Giraffe, Kangaroo, Sheep, Parrot, Goose, Raccoon, Sloth, Hedgehog)
+    Penguin, Chick, Duck, Eagle, Owl, Bat, Wolf, Horse, Bee, Snail, Ladybug, Turtle, Crocodile, Sheep, Parrot)
 
   def valueOf(s: String): Emoji = values.find(_.toString == s).get
 
@@ -37,21 +36,7 @@ case object Horse extends Emoji("\uD83D\uDC34")
 case object Bee extends Emoji("\uD83D\uDC1D")
 case object Snail extends Emoji("\uD83D\uDC0C")
 case object Ladybug extends Emoji("\uD83D\uDC1E")
-case object Ant extends Emoji("\uD83D\uDC1C")
 case object Turtle extends Emoji("\uD83D\uDC22")
-case object Snake extends Emoji("\uD83D\uDC0D")
-case object Lobster extends Emoji("\uD83E\uDD90")
-case object Crab extends Emoji("\uD83E\uDD80")
-case object Dolphin extends Emoji("\uD83D\uDC2C")
-case object Whale extends Emoji("\uD83D\uDC0B")
-case object Shark extends Emoji("\uD83E\uDD88")
 case object Crocodile extends Emoji("\uD83D\uDC0A")
-case object Camel extends Emoji("\uD83D\uDC2A")
-case object Giraffe extends Emoji("\uD83E\uDD92")
-case object Kangaroo extends Emoji("\uD83E\uDD98")
 case object Sheep extends Emoji("\uD83D\uDC11")
 case object Parrot extends Emoji("\uD83E\uDD9C")
-case object Goose extends Emoji("\uD83E\uDEBF")
-case object Raccoon extends Emoji("\uD83E\uDD9D")
-case object Sloth extends Emoji("\uD83E\uDDA5")
-case object Hedgehog extends Emoji("\uD83E\uDD94") derives ReadWriter

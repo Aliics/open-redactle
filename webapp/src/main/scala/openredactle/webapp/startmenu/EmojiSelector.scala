@@ -28,7 +28,7 @@ object EmojiSelector extends RenderableElement:
       case None =>
         storeEmoji(Emoji.values.random)
 
-  lazy val renderElement: Element =
+  override lazy val renderElement: Element =
     val sel = select(
       idAttr := "emoji",
       fontSize := "16px",
@@ -45,7 +45,7 @@ object EmojiSelector extends RenderableElement:
     )
 
     sel.ref.onchange = _ =>
-      emojiSelected.update(_ => sel.ref.value)
+      emojiSelected.set(sel.ref.value)
       storeEmoji(Emoji valueOf sel.ref.value)
 
     sel
