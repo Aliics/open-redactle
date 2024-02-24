@@ -1,5 +1,7 @@
 target/
 .bsp/
+.bloop/
+.metals/
 
 # Logs
 logs
