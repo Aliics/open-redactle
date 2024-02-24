@@ -19,10 +19,12 @@ object SettingsPopup extends RenderableElement:
 
       div(
         colored(bgColor = Colors.mainBackground),
-        rowGap := "1rem",
+        rowGap := "0.5rem",
         cls := "card",
+        padding := "0.5rem 0 0 0",
+        overflow := "hidden",
         position := "absolute",
-        transform := "translate(-5rem, -13.5rem)",
+        transform := "translate(-3.5rem, -10rem)",
         width := "7rem",
 
         EmojiSelector,
@@ -30,9 +32,12 @@ object SettingsPopup extends RenderableElement:
 
         onClick.stopPropagation --> (_ => ()),
 
-        button(
+        a(
           colored(bgColor = Colors.danger),
+          cls := "popup-item",
+
           onClick --> (_ => window.location.href = "/"),
+
           "Leave",
         ),
       ),

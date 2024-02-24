@@ -39,7 +39,7 @@ def getMatchingGuessData(fullArticleData: Seq[ArticleData])(guess: String): (Map
     strs.map((s, is) => s -> (i, is))
   .groupMap(_._1)(_._2)
 
-  val matchedCount = matches.sumBy(_._2.sumBy(_._2.length))
+  val matchedCount = matches.sumBy(_._2.sumBy(_._2.size))
 
   matches -> matchedCount
   

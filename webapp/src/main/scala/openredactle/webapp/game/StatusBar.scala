@@ -3,19 +3,17 @@ package openredactle.webapp.game
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.let
-import openredactle.webapp.element.RenderableElement
-import openredactle.webapp.element.renderableElementToElement
+import openredactle.webapp.element.{RenderableElement, renderableElementToElement}
 import openredactle.webapp.settings.SettingsPopup
-import openredactle.webapp.{Colors, colored, solidBorder}
+import openredactle.webapp.{Colors, colored, layoutFlex, solidBorder}
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
 
 object StatusBar extends RenderableElement:
-  private val copyLinkButtonPromptText = "Copy Link"
-  private val copyButtonDoneText = "Copied!"
+  private val copyLinkButtonPromptText = "Copy"
+  private val copyButtonDoneText = "Done"
 
-  val playerCount: Var[Int] = Var(0)
   val hintsAvailable: Var[Int] = Var(0)
   let:
     given ManualOwner()
@@ -35,16 +33,28 @@ object StatusBar extends RenderableElement:
 
       span(
         fontSize := "16px",
-        child.text <-- playerCount.signal.map(c => s"Players: $c"),
+        width := "5rem",
+
+        children <-- Game.playerEmojis.signal.map(_.values.toSeq).map:
+          case playerEmojis if playerEmojis.size > 3 =>
+            playerEmojis.take(3).map(_.code).map(span(_)) :+
+              span(s"(+${playerEmojis.size - 3})")
+          case playerEmojis =>
+            playerEmojis.map(_.code).map(span(_))
       ),
 
       div(
+        layoutFlex(),
+        alignItems := "center",
+        columnGap := "0.5rem",
+
         child <-- Game.gameId.signal.map: gameId =>
           span(fontSize := "16px", gameId getOrElse ""),
 
         button(
           colored(),
-          width := "7rem",
+          cls := "trim",
+          width := "4rem",
 
           onClick --> copyShareUrl,
           child.text <-- copyLinkButtonText,
@@ -55,12 +65,14 @@ object StatusBar extends RenderableElement:
         child <-- Article.inHintMode.signal.map: inHintMode =>
           button(
             colored(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
+            cls := "trim",
             onClick --> (_ => Article.inHintMode.update(!_ && hintsAvailable.now() > 0)),
             child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
           ),
         button(
           colored(),
-          zIndex := 10,
+          cls := "trim",
+
           onClick.stopPropagation --> (e => SettingsPopup.toggle()),
           "Settings",
 

@@ -10,5 +10,4 @@ extension (conn: WebSocket)(using logger: Logger)
     try
       conn.send(write(message))
     catch
-      case e => logger.warn(s"could not write message to connection: $message")
-
+      case e => logger.warn(s"Could not write message to connection: $message")

@@ -6,24 +6,27 @@ import upickle.default.ReadWriter
 enum Message derives ReadWriter:
   // Inputs
   case StartGame(emoji: Emoji)
-  case JoinGame(emoji: Emoji, gameId: String)
+  case JoinGame(gameId: String, emoji: Emoji)
   case AddGuess(gameId: String, guess: String)
   case RequestHint(gameId: String, section: Int, position: Int)
+  case ChangeEmoji(gameId: String, now: Emoji)
 
   // Outputs
   case GameState(
     gameId: String,
-    playerCount: Int,
+    playerId: String,
+    playerEmojis: Map[String, Emoji],
     articleData: Seq[ArticleData],
-    guesses: List[(Emoji, String, Int, Boolean)],
+    guesses: List[(String, String, Int, Boolean)],
     hintsAvailable: Int,
     secretPositions: Seq[(Int, Seq[Int])]
   )
-  case NewGuess(emoji: Emoji, guess: String, matchedCount: Int, isHint: Boolean)
+  case NewGuess(playerId: String, guess: String, matchedCount: Int, isHint: Boolean)
   case GuessMatch(word: Word.Known, matches: Seq[(Int, Seq[Int])])
-  case AlreadyGuessed(emoji: Emoji, guess: String, isHint: Boolean)
-  case PlayerJoined()
-  case PlayerLeft()
+  case AlreadyGuessed(playerId: String, guess: String, isHint: Boolean)
+  case PlayerJoined(playerId: String, emoji: Emoji)
+  case PlayerLeft(playerId: String)
   case GameWon(fullArticleData: Seq[ArticleData])
   case HintUsed()
+  case PlayerChangedEmoji(playerId: String, emoji: Emoji)
   case Error(message: String)

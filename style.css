@@ -82,9 +82,14 @@ a:hover {
 
 button {
     cursor: pointer;
-    padding: 0.5rem 1rem;
+    padding: 0.43rem 1rem;
     border-radius: 0.5rem;
     border: solid 2px var(--main-background);
+}
+
+button.trim {
+    padding: 0.33rem 0.5rem;
+    font-size: 12px;
 }
 
 input:focus, button:hover:not(:has(*:hover)) {
@@ -120,4 +125,13 @@ input:focus, button:hover:not(:has(*:hover)) {
 
 .in-hint-mode .blocked-word {
     background-color: var(--hint-block);
+}
+
+.popup-item {
+    width: 100%;
+    padding: 0.5rem;
+}
+
+.popup-item:hover {
+    filter: brightness(120%);
 }

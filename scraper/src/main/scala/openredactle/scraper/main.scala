@@ -36,7 +36,7 @@ val minimumParagraphs = 20
             .exists(el.text().startsWith(_))
 
       // Needs more than 10 paragraphs of at least tweet length lol.
-      if bodyContent.count(_.text().length >= 280) >= minimumParagraphs then
+      if bodyContent.count(_.text().size >= 280) >= minimumParagraphs then
         val articleData = bodyContentElementsToArticleData(bodyContent)
 
         logger.info(s"Article can be saved $a")
@@ -52,17 +52,17 @@ val minimumParagraphs = 20
     .zipWithIndex.map:
       case ((a, d, e), i) => (i, a, d, e)
 
-  val infoContentsLen = articlesInfoContents.length
+  val infoContentsLen = articlesInfoContents.size
   logger.info(s"Writing $infoContentsLen items to index")
 
   if mode == Mode.Generate then
     s3Storage.updateIndex:
       indexData ++ articlesInfoContents.collect:
-        case (i, ArticleInfo(_, uri, _), _, None) => (i + indexData.length) -> uri.toString
+        case (i, ArticleInfo(_, uri, _), _, None) => (i + indexData.size) -> uri.toString
 
     logger.info(s"Writing $infoContentsLen items as s3 objects")
     for (i, _, articleData, existingIndex) <- articlesInfoContents do
-      s3Storage.writeArticleData(existingIndex getOrElse (i + indexData.length), articleData)
+      s3Storage.writeArticleData(existingIndex getOrElse (i + indexData.size), articleData)
   else
     s3Storage.updateIndex:
       articlesInfoContents.map:

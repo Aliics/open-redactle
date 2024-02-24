@@ -32,6 +32,7 @@ object ThemeSwitch extends RenderableElement:
     span(
       layoutFlex(direction = "row"),
       alignItems := "center",
+      paddingLeft := "0.5rem",
 
       "Dark",
       toggleSwitch(darkTheme),

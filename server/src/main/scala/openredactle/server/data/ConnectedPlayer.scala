@@ -1,9 +1,10 @@
 package openredactle.server.data
 
-import openredactle.shared.data.Emoji
 import org.java_websocket.WebSocket
 
+import java.util.UUID
+
 case class ConnectedPlayer(
-  emoji: Emoji,
+  id: UUID,
   conn: WebSocket,
 ) extends ToStringComparable[ConnectedPlayer]

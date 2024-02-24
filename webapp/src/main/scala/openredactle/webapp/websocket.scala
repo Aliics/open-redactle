@@ -19,18 +19,18 @@ def connectWs(gameId: Option[String] = None): WebSocket =
   ws.onopen = _ =>
     gameId match
       case Some(gameId) =>
-        ws.send(write(JoinGame(EmojiSelector.storedEmoji, gameId)))
+        ws.send(write(JoinGame(gameId, EmojiSelector.storedEmoji)))
       case None =>
         ws.send(write(StartGame(EmojiSelector.storedEmoji)))
 
   ws.onmessage = msg =>
     val message = read[Message](msg.data.asInstanceOf[String])
     message match
-      case GameState(gameId, playerCount, articleData, guesses, hintsAvailable, secretPositions) =>
+      case GameState(gameId, playerId, playerEmojis, articleData, guesses, hintsAvailable, secretPositions) =>
         window.history.replaceState((), "", s"/game/$gameId") // Make url match nicely. :)
 
         Game.gameId.set(Some(gameId))
-        StatusBar.playerCount.set(playerCount)
+        Game.playerEmojis.set(playerEmojis)
         StatusBar.hintsAvailable.set(hintsAvailable)
         Article.articleData.set(articleData)
         Article.secretPositions.set(secretPositions)
@@ -41,14 +41,16 @@ def connectWs(gameId: Option[String] = None): WebSocket =
         Article.updateMatched(word, matches)
       case AlreadyGuessed(_, guess, isHint) =>
         Article.selectedGuess.set(Some(guess -> isHint))
-      case PlayerJoined() =>
-        StatusBar.playerCount.update(_ + 1)
-      case PlayerLeft() =>
-        StatusBar.playerCount.update(_ - 1)
+      case PlayerJoined(playerId, emoji) =>
+        Game.playerEmojis.update(_ + (playerId -> emoji))
+      case PlayerLeft(playerId) =>
+        Game.playerEmojis.update(_.removed(playerId))
       case GameWon(fullArticleData) =>
         Article.articleData.set(fullArticleData)
       case HintUsed() =>
         StatusBar.hintsAvailable.update(_ - 1)
+      case PlayerChangedEmoji(playerId, emoji) =>
+        Game.playerEmojis.update(_.updated(playerId, emoji))
       case Error(errorMessage) =>
         Errors.show(errorMessage)
       case _ =>

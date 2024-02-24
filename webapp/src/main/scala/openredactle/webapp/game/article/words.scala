@@ -38,7 +38,7 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
           if !showingLength then blanked
           else
             val lengthStr = length.toString
-            lengthStr + nbsp.repeat(length - lengthStr.length)
+            lengthStr + nbsp.repeat(length - lengthStr.size)
 
       def blockedElement(isSecret: Boolean) = span(
         cls := (Seq("blocked-word") ++ Option.when(isSecret)("is-secret")),

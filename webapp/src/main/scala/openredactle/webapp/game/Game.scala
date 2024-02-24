@@ -2,6 +2,7 @@ package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import openredactle.shared.data.Emoji
 import openredactle.shared.message
 import openredactle.shared.message.Message
 import openredactle.webapp.*
@@ -11,6 +12,8 @@ import upickle.default.write
 
 object Game extends RenderableElement:
   val gameId: Var[Option[String]] = Var(None)
+  val playerId: Var[Option[String]] = Var(None)
+  val playerEmojis: Var[Map[String, Emoji]] = Var(Map())
 
   private val gameConnection: Var[Option[WebSocket]] = Var:
     window.location.pathname.stripPrefix("/") match
@@ -28,6 +31,10 @@ object Game extends RenderableElement:
   def requestHint(section: Int, num: Int): Unit =
     gameConnection.now().foreach: ws =>
       ws.send(write(Message.RequestHint(gameId.now().get, section, num)))
+      
+  def changeEmojiInGame(emoji: Emoji): Unit =
+    gameConnection.now().foreach: ws =>
+      ws.send(write(Message.ChangeEmoji(gameId.now().get, emoji)))
 
   override lazy val renderElement: Element =
     div(

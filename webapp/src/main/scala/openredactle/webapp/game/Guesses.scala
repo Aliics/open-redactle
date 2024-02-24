@@ -1,12 +1,11 @@
 package openredactle.webapp.game
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.shared.data.Emoji
 import openredactle.webapp.*
 import openredactle.webapp.element.RenderableElement
 
 object Guesses extends RenderableElement:
-  private type Guess = (Emoji, String, Int, Boolean)
+  private type Guess = (String, String, Int, Boolean)
 
   val guessedWords: Var[List[Guess]] = Var(List())
 
@@ -71,7 +70,7 @@ object Guesses extends RenderableElement:
     )
 
   private def renderGuess(index: Int, initial: Guess, guessSignal: Signal[Guess]) =
-    val (emoji, guessed, matched, isHint) = initial
+    val (playerId, guessed, matched, isHint) = initial
     val isCorrectGuess = matched > 0
     div(
       layoutFlex(),
@@ -102,7 +101,7 @@ object Guesses extends RenderableElement:
         fontSize := "15px",
         marginRight := "0.5rem",
 
-        emoji.code,
+        child.text <-- Game.playerEmojis.signal.map(_.get(playerId).fold("?")(_.code)),
       ),
       div(
         layoutFlex(),

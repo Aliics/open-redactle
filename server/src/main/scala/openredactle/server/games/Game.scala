@@ -1,9 +1,9 @@
 package openredactle.server.games
 
-import openredactle.server.data.*
+import openredactle.server.data.{*, given}
 import openredactle.server.send
 import openredactle.shared.data.Word.*
-import openredactle.shared.data.{ArticleData, Word}
+import openredactle.shared.data.{ArticleData, Emoji, Word}
 import openredactle.shared.logging.ImplicitLazyLogger
 import openredactle.shared.message.Message
 import openredactle.shared.message.Message.*
@@ -20,15 +20,16 @@ import scala.language.implicitConversions
 class Game extends ImplicitLazyLogger:
   private[games] val connectedPlayers = ConcurrentLinkedQueue[ConnectedPlayer]()
   private[games] val lastConnectionTime = AtomicLong(Instant.now().toEpochMilli)
-
   private val gameWon = AtomicBoolean(false)
+
   private val fullArticleData = let:
     val indexData = Game.s3Storage.fetchIndex()
     val r@(i, _) = indexData.random
     logger.info(s"Selected article: $r")
     Game.s3Storage.getArticleByIndex(i)
 
-  val guessedWords: ConcurrentLinkedQueue[PlayerGuess] = ConcurrentLinkedQueue[PlayerGuess]()
+  val playerEmojis: ConcurrentLinkedQueue[PlayerEmoji] = ConcurrentLinkedQueue()
+  val guessedWords: ConcurrentLinkedQueue[PlayerGuess] = ConcurrentLinkedQueue()
   val hintsAvailable: AtomicInteger = AtomicInteger(3)
 
   val id: String =
@@ -36,16 +37,20 @@ class Game extends ImplicitLazyLogger:
       .map(_ => randomWords.random)
       .mkString("-")
 
-  def connect(connectedPlayer: ConnectedPlayer): Int =
+  def connect(connectedPlayer: ConnectedPlayer, emoji: Emoji): Unit =
     lastConnectionTime.set(Instant.now().toEpochMilli)
-    broadcast(Message.PlayerJoined())
+
+    broadcast(Message.PlayerJoined(connectedPlayer.id, emoji))
     connectedPlayers.add(connectedPlayer)
-    connectedPlayers.size
+    playerEmojis.add(PlayerEmoji(connectedPlayer.id, emoji))
 
   def disconnectByConn(conn: WebSocket): Unit =
     lastConnectionTime.set(Instant.now().toEpochMilli)
-    connectedPlayers.remove(getConnectedPlayerByConn(conn))
-    broadcast(Message.PlayerLeft())
+
+    val playerId = conn.id
+    connectedPlayers.removeIf(_.id == playerId)
+    playerEmojis.removeIf(_.id == playerId)
+    broadcast(Message.PlayerLeft(playerId))
 
   def addGuess(rawGuess: String, isHint: Boolean = false)(using conn: WebSocket): Unit =
     val guess = rawGuess.trim
@@ -56,7 +61,7 @@ class Game extends ImplicitLazyLogger:
 
       guessedWords.add(PlayerGuess(conn, guess, matchedCount, isHint))
       logger.info(s"""${if isHint then "Hint" else "Guess"} in $id: "$guess"""")
-      broadcast(NewGuess(conn.emoji, guess, matchedCount, isHint))
+      broadcast(NewGuess(conn.id, guess, matchedCount, isHint))
 
       if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
         matches.foreach:
@@ -68,7 +73,7 @@ class Game extends ImplicitLazyLogger:
         gameWon.set(true)
     else if alreadyGuessed.isDefined then
       val PlayerGuess(_, word, _, isHint) = alreadyGuessed.get
-      conn.send(AlreadyGuessed(conn.emoji, word, isHint))
+      conn.send(AlreadyGuessed(conn.id, word, isHint))
 
   def requestHint(section: Int, num: Int)(using WebSocket): Unit =
     val avail = hintsAvailable.get()
@@ -80,6 +85,16 @@ class Game extends ImplicitLazyLogger:
           broadcast(HintUsed())
         case _ =>
           logger.warn(s"Attempted to give hint at position: $section, $num")
+
+  def changeEmoji(emoji: Emoji)(using conn: WebSocket): Unit =
+    playerEmojis.asScala.find(_.id == conn.id) match
+      case Some(PlayerEmoji(id, _)) =>
+        playerEmojis.removeIf(_.id == id)
+        playerEmojis.add(PlayerEmoji(id, emoji))
+      case None =>
+        logger.warn("Could not find PlayerEmoji")
+
+    broadcast(Message.PlayerChangedEmoji(conn.id, emoji))
 
   def articleData: Seq[ArticleData] =
     if gameWon.get() then fullArticleData
