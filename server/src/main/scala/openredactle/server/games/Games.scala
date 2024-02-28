@@ -1,7 +1,10 @@
 package openredactle.server.games
 
+import openredactle.server.Env
+import openredactle.server.send
 import openredactle.server.metrics.{CloudWatchEmitter, Metric}
 import openredactle.shared.logging.ImplicitLazyLogger
+import openredactle.shared.message.OutMessage
 import openredactle.shared.sumBy
 import org.java_websocket.WebSocket
 import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
@@ -12,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.*
 
-object Games extends ImplicitLazyLogger:
+class Games(using envName: Env) extends ImplicitLazyLogger:
   private val games = ConcurrentLinkedQueue[Game]()
 
   def create(): Game =
@@ -20,10 +23,11 @@ object Games extends ImplicitLazyLogger:
     games.add(game)
     game
 
-  def withGame(id: String)(thunk: Game => Unit)(otherwise: => Unit): Unit =
+  def withGame(id: String)(thunk: Game => Unit)(using conn: WebSocket): Unit =
     games.asScala.find(_.id == id) match
       case Some(game) => thunk(game)
-      case None => otherwise
+      case None => conn.send(OutMessage.Error(s"Game not found with ID: $id"))
+
 
   def findPlayerGame(conn: WebSocket): Option[Game] =
     games.asScala.find(_.connectedPlayers.asScala.exists(_.conn == conn))

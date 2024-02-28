@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
 
-object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLazyLogger:
+class WsServer(games: Games)(using env: Env) extends WebSocketServer(InetSocketAddress(env.port)) with ImplicitLazyLogger:
   private val connCount = AtomicLong(0)
   override def onOpen(conn: WebSocket, handshake: ClientHandshake): Unit =
     connCount.incrementAndGet()
@@ -28,7 +28,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
 
   override def onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean): Unit =
     connCount.decrementAndGet()
-    Games.findPlayerGame(conn) match
+    games.findPlayerGame(conn) match
       case Some(game) =>
         game.disconnectByConn(conn)
       case None =>
@@ -39,7 +39,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
       val player = ConnectedPlayer(UUID.randomUUID, conn)
       game.connect(player, emoji)
       logger.info(s"Connected player to ${game.id}")
-      
+
       conn.send(OutMessage.GameState(
         gameId = game.id,
         playerId = player.id,
@@ -55,15 +55,15 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
     read[InMessage](message) match
       case StartGame(emoji) =>
         logger.info("Starting new game!")
-        connectToGame(emoji, Games.create())
+        connectToGame(emoji, games.create())
       case JoinGame(gameId, emoji) =>
-        Games.withGame(gameId)(connectToGame(emoji, _))(sendGameNotFoundError(gameId))
+        games.withGame(gameId)(connectToGame(emoji, _))
       case AddGuess(gameId, guess) =>
-        Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(gameId))
+        games.withGame(gameId)(_.addGuess(guess))
       case RequestHint(gameId, section, num) =>
-        Games.withGame(gameId)(_.requestHint(section, num))(sendGameNotFoundError(gameId))
+        games.withGame(gameId)(_.requestHint(section, num))
       case ChangeEmoji(gameId, emoji) =>
-        Games.withGame(gameId)(_.changeEmoji(emoji))(sendGameNotFoundError(gameId))
+        games.withGame(gameId)(_.changeEmoji(emoji))
 
   override def onError(conn: WebSocket, ex: Exception): Unit =
     logger.error(s"Error occurred: $ex")
