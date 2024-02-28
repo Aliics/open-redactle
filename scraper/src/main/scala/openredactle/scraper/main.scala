@@ -36,7 +36,7 @@ val minimumParagraphs = 20
             .exists(el.text().startsWith(_))
 
       // Needs more than 10 paragraphs of at least tweet length lol.
-      if bodyContent.count(_.text().size >= 280) >= minimumParagraphs then
+      if bodyContent.count(_.text().length >= 280) >= minimumParagraphs then
         val articleData = bodyContentElementsToArticleData(bodyContent)
 
         logger.info(s"Article can be saved $a")

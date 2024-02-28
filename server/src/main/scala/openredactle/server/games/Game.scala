@@ -5,8 +5,8 @@ import openredactle.server.send
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Emoji, Word}
 import openredactle.shared.logging.ImplicitLazyLogger
-import openredactle.shared.message.Message
-import openredactle.shared.message.Message.*
+import openredactle.shared.message.OutMessage
+import openredactle.shared.message.OutMessage.*
 import openredactle.shared.stored.S3Storage
 import openredactle.shared.{data, let, random, roughEquals}
 import org.java_websocket.WebSocket
@@ -40,7 +40,7 @@ class Game extends ImplicitLazyLogger:
   def connect(connectedPlayer: ConnectedPlayer, emoji: Emoji): Unit =
     lastConnectionTime.set(Instant.now().toEpochMilli)
 
-    broadcast(Message.PlayerJoined(connectedPlayer.id, emoji))
+    broadcast(PlayerJoined(connectedPlayer.id, emoji))
     connectedPlayers.add(connectedPlayer)
     playerEmojis.add(PlayerEmoji(connectedPlayer.id, emoji))
 
@@ -50,7 +50,7 @@ class Game extends ImplicitLazyLogger:
     val playerId = conn.id
     connectedPlayers.removeIf(_.id == playerId)
     playerEmojis.removeIf(_.id == playerId)
-    broadcast(Message.PlayerLeft(playerId))
+    broadcast(PlayerLeft(playerId))
 
   def addGuess(rawGuess: String, isHint: Boolean = false)(using conn: WebSocket): Unit =
     val guess = rawGuess.trim
@@ -94,7 +94,7 @@ class Game extends ImplicitLazyLogger:
       case None =>
         logger.warn("Could not find PlayerEmoji")
 
-    broadcast(Message.PlayerChangedEmoji(conn.id, emoji))
+    broadcast(PlayerChangedEmoji(conn.id, emoji))
 
   def articleData: Seq[ArticleData] =
     if gameWon.get() then fullArticleData
@@ -119,7 +119,7 @@ class Game extends ImplicitLazyLogger:
         case (Word.Known(str, _), i) if secrets.exists(roughEquals(_)(str)) => i
       i -> matched
 
-  private def broadcast(message: Message): Unit =
+  private def broadcast(message: OutMessage): Unit =
     connectedPlayers.asScala.foreach(_.conn.send(message))
 
   private implicit def getConnectedPlayerByConn(conn: WebSocket): ConnectedPlayer =

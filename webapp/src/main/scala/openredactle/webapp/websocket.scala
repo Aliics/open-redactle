@@ -1,8 +1,9 @@
 package openredactle.webapp
 
 import openredactle.shared.message
-import openredactle.shared.message.Message
-import openredactle.shared.message.Message.*
+import openredactle.shared.message.InMessage.*
+import openredactle.shared.message.OutMessage
+import openredactle.shared.message.OutMessage.*
 import openredactle.webapp.game.*
 import openredactle.webapp.settings.EmojiSelector
 import org.scalajs.dom.{WebSocket, window}
@@ -24,8 +25,7 @@ def connectWs(gameId: Option[String] = None): WebSocket =
         ws.send(write(StartGame(EmojiSelector.storedEmoji)))
 
   ws.onmessage = msg =>
-    val message = read[Message](msg.data.asInstanceOf[String])
-    message match
+    read[OutMessage](msg.data.asInstanceOf[String]) match
       case GameState(gameId, playerId, playerEmojis, articleData, guesses, hintsAvailable, secretPositions) =>
         window.history.replaceState((), "", s"/game/$gameId") // Make url match nicely. :)
 
@@ -53,7 +53,5 @@ def connectWs(gameId: Option[String] = None): WebSocket =
         Game.playerEmojis.update(_.updated(playerId, emoji))
       case Error(errorMessage) =>
         Errors.show(errorMessage)
-      case _ =>
-        Errors.show(s"Unknown message: ${msg.data}")
 
   ws

@@ -3,15 +3,14 @@ package openredactle.shared.message
 import openredactle.shared.data.{ArticleData, Emoji, Word}
 import upickle.default.ReadWriter
 
-enum Message derives ReadWriter:
-  // Inputs
+enum InMessage derives ReadWriter:
   case StartGame(emoji: Emoji)
   case JoinGame(gameId: String, emoji: Emoji)
   case AddGuess(gameId: String, guess: String)
   case RequestHint(gameId: String, section: Int, position: Int)
   case ChangeEmoji(gameId: String, now: Emoji)
 
-  // Outputs
+enum OutMessage derives ReadWriter:
   case GameState(
     gameId: String,
     playerId: String,

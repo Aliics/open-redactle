@@ -4,11 +4,12 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import openredactle.shared.data.Emoji
 import openredactle.shared.message
-import openredactle.shared.message.Message
+import openredactle.shared.message.InMessage
+import openredactle.shared.message.InMessage.*
 import openredactle.webapp.*
 import openredactle.webapp.element.{RenderableElement, given}
 import org.scalajs.dom.{WebSocket, window}
-import upickle.default.write
+import upickle.default.{Writer, write}
 
 object Game extends RenderableElement:
   val gameId: Var[Option[String]] = Var(None)
@@ -25,16 +26,13 @@ object Game extends RenderableElement:
     gameConnection.set(Some(connectWs(gameId)))
 
   def addGuess(guess: String): Unit =
-    gameConnection.now().foreach: ws =>
-      ws.send(write(Message.AddGuess(gameId.now().get, guess)))
-      
+    sendMessage(AddGuess.apply, guess)
+
   def requestHint(section: Int, num: Int): Unit =
-    gameConnection.now().foreach: ws =>
-      ws.send(write(Message.RequestHint(gameId.now().get, section, num)))
-      
+    sendMessage(RequestHint.apply, section, num)
+
   def changeEmojiInGame(emoji: Emoji): Unit =
-    gameConnection.now().foreach: ws =>
-      ws.send(write(Message.ChangeEmoji(gameId.now().get, emoji)))
+    sendMessage(ChangeEmoji.apply, emoji)
 
   override lazy val renderElement: Element =
     div(
@@ -68,3 +66,18 @@ object Game extends RenderableElement:
             StartMenu,
           ),
         )
+
+  private def sendMessage[I <: InMessage : Writer, A](apply: (String, A) => I, arg: A): Unit =
+    withGame: (gameId, gameConnection) =>
+      gameConnection.send(write(apply(gameId, arg)))
+
+  private def sendMessage[I <: InMessage : Writer, A0, A1](apply: (String, A0, A1) => I, arg: A0, arg1: A1): Unit =
+    withGame: (gameId, gameConnection) =>
+      gameConnection.send(write(apply(gameId, arg, arg1)))
+
+  private def withGame(thunk: (String, WebSocket) => Unit): Unit =
+    if gameId.now().isEmpty || gameConnection.now().isEmpty then
+      Errors.show("Not connected to game. Cannot perform action.")
+    else
+      thunk(gameId.now().get, gameConnection.now().get)
+        

@@ -6,7 +6,8 @@ import openredactle.server.games.{Game, Games}
 import openredactle.server.metrics.{CloudWatchEmitter, Metric}
 import openredactle.shared.data.Emoji
 import openredactle.shared.logging.ImplicitLazyLogger
-import openredactle.shared.message.*
+import openredactle.shared.message.{InMessage, OutMessage}
+import openredactle.shared.message.InMessage.*
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
@@ -39,7 +40,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
       game.connect(player, emoji)
       logger.info(s"Connected player to ${game.id}")
       
-      conn.send(Message.GameState(
+      conn.send(OutMessage.GameState(
         gameId = game.id,
         playerId = player.id,
         playerEmojis = game.playerEmojis.asScala.map(p => p.id.toString -> p.emoji).toMap,
@@ -51,20 +52,18 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
 
     given WebSocket = conn
 
-    read[Message](message) match
-      case Message.StartGame(emoji) =>
+    read[InMessage](message) match
+      case StartGame(emoji) =>
         logger.info("Starting new game!")
         connectToGame(emoji, Games.create())
-      case Message.JoinGame(gameId, emoji) =>
+      case JoinGame(gameId, emoji) =>
         Games.withGame(gameId)(connectToGame(emoji, _))(sendGameNotFoundError(gameId))
-      case Message.AddGuess(gameId, guess) =>
+      case AddGuess(gameId, guess) =>
         Games.withGame(gameId)(_.addGuess(guess))(sendGameNotFoundError(gameId))
-      case Message.RequestHint(gameId, section, num) =>
+      case RequestHint(gameId, section, num) =>
         Games.withGame(gameId)(_.requestHint(section, num))(sendGameNotFoundError(gameId))
-      case Message.ChangeEmoji(gameId, emoji) =>
+      case ChangeEmoji(gameId, emoji) =>
         Games.withGame(gameId)(_.changeEmoji(emoji))(sendGameNotFoundError(gameId))
-      case _ =>
-        logger.error(s"Invalid message $message")
 
   override def onError(conn: WebSocket, ex: Exception): Unit =
     logger.error(s"Error occurred: $ex")
@@ -76,7 +75,7 @@ object WsServer extends WebSocketServer(InetSocketAddress(8080)) with ImplicitLa
     setConnectionLostTimeout(60)
 
   private def sendGameNotFoundError(attemptedGameId: String)(using conn: WebSocket): Unit =
-    conn.send(Message.Error(s"Game not found with ID: $attemptedGameId"))
+    conn.send(OutMessage.Error(s"Game not found with ID: $attemptedGameId"))
 
   CloudWatchEmitter("open-redactle-server-websockets")(
     Metric("open-connections", StandardUnit.COUNT, () => connCount.doubleValue()),
