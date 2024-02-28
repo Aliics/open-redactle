@@ -5,8 +5,7 @@ import openredactle.webapp.{Colors, layoutFlex}
 
 def toggleSwitch(checkedVar: Var[Boolean]) =
   span(
-    layoutFlex(),
-    alignItems := "center",
+    layoutFlex(centered = true),
 
     input(
       `type` := "checkbox",

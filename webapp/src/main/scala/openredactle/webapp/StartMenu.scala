@@ -18,9 +18,8 @@ object StartMenu extends RenderableElement:
 
       h1("Open Redactle"),
       div(
-        layoutFlex(direction = "row"),
+        layoutFlex(direction = "row", centered = true),
         justifyContent := "space-evenly",
-        alignItems := "center",
         cls := "card",
 
         EmojiSelector,

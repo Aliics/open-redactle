@@ -1,6 +1,7 @@
 package openredactle.server.games
 
 import openredactle.server.data.{*, given}
+import openredactle.server.games.vote.Vote
 import openredactle.server.send
 import openredactle.shared.data.Word.*
 import openredactle.shared.data.{ArticleData, Emoji, Word}
@@ -18,6 +19,13 @@ import scala.jdk.CollectionConverters.*
 import scala.language.implicitConversions
 
 class Game extends ImplicitLazyLogger:
+  val playerEmojis: ConcurrentLinkedQueue[PlayerEmoji] = ConcurrentLinkedQueue()
+  val guessedWords: ConcurrentLinkedQueue[PlayerGuess] = ConcurrentLinkedQueue()
+  val vote: Vote = Vote()
+
+  val hintsAvailable: AtomicInteger = AtomicInteger(3)
+
+  val id: String = (0 to 2).map(_ => randomWords.random).mkString("-")
   private[games] val connectedPlayers = ConcurrentLinkedQueue[ConnectedPlayer]()
   private[games] val lastConnectionTime = AtomicLong(Instant.now().toEpochMilli)
   private val gameWon = AtomicBoolean(false)
@@ -28,21 +36,13 @@ class Game extends ImplicitLazyLogger:
     logger.info(s"Selected article: $r")
     Game.s3Storage.getArticleByIndex(i)
 
-  val playerEmojis: ConcurrentLinkedQueue[PlayerEmoji] = ConcurrentLinkedQueue()
-  val guessedWords: ConcurrentLinkedQueue[PlayerGuess] = ConcurrentLinkedQueue()
-  val hintsAvailable: AtomicInteger = AtomicInteger(3)
-
-  val id: String =
-    (0 to 2)
-      .map(_ => randomWords.random)
-      .mkString("-")
-
   def connect(connectedPlayer: ConnectedPlayer, emoji: Emoji): Unit =
     lastConnectionTime.set(Instant.now().toEpochMilli)
 
     broadcast(PlayerJoined(connectedPlayer.id, emoji))
     connectedPlayers.add(connectedPlayer)
     playerEmojis.add(PlayerEmoji(connectedPlayer.id, emoji))
+    vote.recalculateRequirements(playerIds)
 
   def disconnectByConn(conn: WebSocket): Unit =
     lastConnectionTime.set(Instant.now().toEpochMilli)
@@ -50,6 +50,7 @@ class Game extends ImplicitLazyLogger:
     val playerId = conn.id
     connectedPlayers.removeIf(_.id == playerId)
     playerEmojis.removeIf(_.id == playerId)
+    vote.recalculateRequirements(playerIds)
     broadcast(PlayerLeft(playerId))
 
   def addGuess(rawGuess: String, isHint: Boolean = false)(using conn: WebSocket): Unit =
@@ -64,9 +65,8 @@ class Game extends ImplicitLazyLogger:
       broadcast(NewGuess(conn.id, guess, matchedCount, isHint))
 
       if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
-        matches.foreach:
-          case (word, matches) =>
-            broadcast(GuessMatch(word, matches))
+        matches.foreach: (word, matches) =>
+          broadcast(GuessMatch(word, matches))
       else
         logger.info(s"""Game won $id with guess: "$guess"""")
         broadcast(GameWon(fullArticleData))
@@ -118,6 +118,8 @@ class Game extends ImplicitLazyLogger:
       val matched = articleData.words.zipWithIndex.collect:
         case (Word.Known(str, _), i) if secrets.exists(roughEquals(_)(str)) => i
       i -> matched
+
+  private def playerIds = connectedPlayers.asScala.map(_.id).toSeq
 
   private def broadcast(message: OutMessage): Unit =
     connectedPlayers.asScala.foreach(_.conn.send(message))

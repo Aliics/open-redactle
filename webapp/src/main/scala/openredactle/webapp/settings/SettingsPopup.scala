@@ -2,7 +2,7 @@ package openredactle.webapp.settings
 
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.webapp.element.{RenderableElement, given}
-import openredactle.webapp.{Colors, colored, rowGap}
+import openredactle.webapp.*
 import org.scalajs.dom.{document, window}
 
 object SettingsPopup extends RenderableElement:
@@ -24,21 +24,35 @@ object SettingsPopup extends RenderableElement:
         padding := "0.5rem 0 0 0",
         overflow := "hidden",
         position := "absolute",
-        transform := "translate(-3.5rem, -10rem)",
+        transform := "translate(-3.5rem, -12rem)",
         width := "7rem",
+        cursor := "default",
 
         EmojiSelector,
         ThemeSwitch,
 
         onClick.stopPropagation --> (_ => ()),
 
-        a(
-          colored(bgColor = Colors.danger),
-          cls := "popup-item",
+        div(
+          layoutFlex(direction = "column", centered = true),
+          width := "100%",
 
-          onClick --> (_ => window.location.href = "/"),
+          a(
+            colored(bgColor = Colors.mainBackground),
+            cls := "popup-item",
+            border := solidBorder(Colors.tertiary),
 
-          "Leave",
+            "Vote give up",
+          ),
+
+          a(
+            colored(bgColor = Colors.danger),
+            cls := "popup-item",
+
+            onClick --> (_ => window.location.href = "/"),
+
+            "Leave",
+          ),
         ),
       ),
     )

@@ -26,11 +26,11 @@ def centeredScreen: Seq[KeySetter.StyleSetter] =
     justifyContent := "center",
   ) ++ layoutFlex("column")
 
-def layoutFlex(direction: String = "default"): Seq[KeySetter.StyleSetter] =
+def layoutFlex(direction: String = "default", centered: Boolean = false): Seq[KeySetter.StyleSetter] =
   Seq(
     display := "flex",
     flexDirection := direction,
-  )
+  ) ++ (if centered then Seq(alignItems := "center") else Nil)
 
 object Colors:
   val primary = "var(--primary)"

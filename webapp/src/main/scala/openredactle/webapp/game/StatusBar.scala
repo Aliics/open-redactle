@@ -25,8 +25,7 @@ object StatusBar extends RenderableElement:
   override lazy val renderElement: Element =
     div(
       borderTop := solidBorder(),
-      display := "flex",
-      alignItems := "center",
+      layoutFlex(centered = true),
       justifyContent := "space-between",
       padding := "0 1rem",
       height := "3rem",
@@ -44,8 +43,7 @@ object StatusBar extends RenderableElement:
       ),
 
       div(
-        layoutFlex(),
-        alignItems := "center",
+        layoutFlex(centered = true),
         columnGap := "0.5rem",
 
         child <-- Game.gameId.signal.map: gameId =>

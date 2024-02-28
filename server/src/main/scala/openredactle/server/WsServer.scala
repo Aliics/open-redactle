@@ -48,6 +48,7 @@ class WsServer(games: Games)(using env: Env) extends WebSocketServer(InetSocketA
         guesses = game.guessedWords.asScala.map(g => (g.player.id.toString, g.word, g.matchedCount, g.isHint)).toList,
         hintsAvailable = game.hintsAvailable.get(),
         secretPositions = game.secretPositions,
+        giveUpVoteStatus = game.vote.currentStatus,
       ))
 
     given WebSocket = conn

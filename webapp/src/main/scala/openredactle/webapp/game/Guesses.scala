@@ -73,8 +73,7 @@ object Guesses extends RenderableElement:
     val (playerId, guessed, matched, isHint) = initial
     val isCorrectGuess = matched > 0
     div(
-      layoutFlex(),
-      alignItems := "center",
+      layoutFlex(centered = true),
       borderBottom := solidBorder(),
       minWidth := "fit-content",
       fontSize := "16px",

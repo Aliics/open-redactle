@@ -30,8 +30,7 @@ object ThemeSwitch extends RenderableElement:
 
   override lazy val renderElement: Element =
     span(
-      layoutFlex(direction = "row"),
-      alignItems := "center",
+      layoutFlex(direction = "row", centered = true),
       paddingLeft := "0.5rem",
 
       "Dark",
