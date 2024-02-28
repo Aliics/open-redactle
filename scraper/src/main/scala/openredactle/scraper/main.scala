@@ -53,24 +53,25 @@ val minimumParagraphs = 20
       case ((a, d, e), i) => (i, a, d, e)
 
   val infoContentsLen = articlesInfoContents.size
-  logger.info(s"Writing $infoContentsLen items to index")
+
+  logger.info(s"Writing $infoContentsLen items as s3 objects")
 
   if mode == Mode.Generate then
+    for (i, _, articleData, existingIndex) <- articlesInfoContents do
+      s3Storage.writeArticleData(existingIndex getOrElse (i + indexData.size), articleData)
+
+    logger.info(s"Writing $infoContentsLen items to index")
     s3Storage.updateIndex:
       indexData ++ articlesInfoContents.collect:
         case (i, ArticleInfo(_, uri, _), _, None) => (i + indexData.size) -> uri.toString
-
-    logger.info(s"Writing $infoContentsLen items as s3 objects")
-    for (i, _, articleData, existingIndex) <- articlesInfoContents do
-      s3Storage.writeArticleData(existingIndex getOrElse (i + indexData.size), articleData)
   else
+    for (i, _, articleData, _) <- articlesInfoContents do
+      s3Storage.writeArticleData(i, articleData)
+
+    logger.info(s"Writing $infoContentsLen items to index")
     s3Storage.updateIndex:
       articlesInfoContents.map:
         case (i, ArticleInfo(_, uri, _), _, _) => i -> uri.toString
-
-    logger.info(s"Writing $infoContentsLen items as s3 objects")
-    for (i, _, articleData, _) <- articlesInfoContents do
-      s3Storage.writeArticleData(i, articleData)
 end main
 
 private def bodyContentElementsToArticleData(bodyContent: mutable.Buffer[Element]) =
