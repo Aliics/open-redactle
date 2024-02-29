@@ -5,4 +5,4 @@ ARG APP_JAR
 COPY $APP_JAR /app/app.jar
 WORKDIR /app
 
-ENTRYPOINT java -cp app.jar openredactle.server.main
+ENTRYPOINT java -cp app.jar openredactle.server.main Prod

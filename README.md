@@ -3,6 +3,8 @@
 Open Source Redactle written entirely in Scala. The frontend utilizes Laminar for reactivity and basic state management.
 This is not meant to an exact clone of other redactle games, but its own thing.
 
+![Screenshot of open-redactle being played. Shows a hinted word and some correctly and incorrectly guessed words.](screenshot.png)
+
 # Development
 
 To make life easier I wrote a [tiny script](./ops/run-local) to run everything locally. Just run that in your
