@@ -1,14 +1,15 @@
 package openredactle.webapp.settings
 
 import com.raquo.laminar.api.L.{*, given}
-import openredactle.webapp.element.{RenderableElement, given}
 import openredactle.webapp.*
+import openredactle.webapp.element.{RenderableElement, given}
+import openredactle.webapp.game.Game
 import org.scalajs.dom.{document, window}
 
 object SettingsPopup extends RenderableElement:
   private val showing = Var(false)
 
-  document.body.onclick = _ => showing.set(false)
+  document.body.onclick = _ => showing := false
 
   def toggle(): Unit = showing.update(!_)
 
@@ -41,6 +42,8 @@ object SettingsPopup extends RenderableElement:
             colored(bgColor = Colors.mainBackground),
             cls := "popup-item",
             border := solidBorder(Colors.tertiary),
+
+            onClick --> (_ => Game.startGiveUpVote()),
 
             "Vote give up",
           ),

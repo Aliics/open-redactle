@@ -46,12 +46,13 @@ object Guesses extends RenderableElement:
 
     form(
       layoutFlex(),
+      columnGap := "0.5rem",
       padding := "1rem",
       borderBottom := solidBorder(),
 
       onSubmit.preventDefault.mapTo(guessInput.now()) --> { w =>
         Game.addGuess(w)
-        guessInput.set("")
+        guessInput := ""
       },
 
       input(

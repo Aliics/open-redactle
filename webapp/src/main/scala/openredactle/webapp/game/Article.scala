@@ -17,8 +17,6 @@ object Article extends RenderableElement:
 
   override lazy val renderElement: Element =
     div(
-      height := "100%",
-      flexGrow := 1,
       overflowY := "scroll",
       fontSize := "18px",
       padding := "0 1rem",

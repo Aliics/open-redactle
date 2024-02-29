@@ -43,6 +43,7 @@
 }
 
 * {
+    box-sizing: border-box;
     outline: none;
     color: var(--main-foreground);
 }
@@ -65,15 +66,18 @@ input[type=checkbox] {
 
 input, select {
     background-color: var(--secondary2);
-    height: 1rem;
-    border: solid 2px var(--main-background);
     user-focus: none;
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 1rem;
     border-radius: 0.5rem;
+    border: solid 2px transparent;
 }
 
 select {
     height: 2rem;
+}
+
+a {
+    cursor: pointer;
 }
 
 a:hover {
@@ -82,9 +86,9 @@ a:hover {
 
 button {
     cursor: pointer;
-    padding: 0.43rem 1rem;
+    padding: 0.4rem 1rem;
     border-radius: 0.5rem;
-    border: solid 2px var(--main-background);
+    border: solid 2px transparent;
 }
 
 button.trim {

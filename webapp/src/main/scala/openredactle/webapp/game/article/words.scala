@@ -5,7 +5,7 @@ import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Word
 import openredactle.shared.roughEquals
 import openredactle.webapp.game.{Article, Game}
-import openredactle.webapp.{Colors, solidBorder}
+import openredactle.webapp.{:=, Colors, solidBorder}
 
 def renderWordElement(word: Word, section: Int, num: Int): Element =
   def spaceNodeWhen(cond: => Boolean): Node = if cond then " " else emptyNode
@@ -38,7 +38,7 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
           if !showingLength then blanked
           else
             val lengthStr = length.toString
-            lengthStr + nbsp.repeat(length - lengthStr.size)
+            lengthStr + nbsp.repeat(length - lengthStr.length)
 
       def blockedElement(isSecret: Boolean) = span(
         cls := (Seq("blocked-word") ++ Option.when(isSecret)("is-secret")),
@@ -47,7 +47,7 @@ def renderWordElement(word: Word, section: Int, num: Int): Element =
           if !Article.inHintMode.now() || isSecret then showingLength.update(!_)
           else
             Game.requestHint(section, num)
-            Article.inHintMode.set(false)
+            Article.inHintMode := false
           ),
 
         child <-- renderText,

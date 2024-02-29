@@ -3,6 +3,7 @@ package openredactle.webapp.settings
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.data.Emoji
 import openredactle.shared.random
+import openredactle.webapp.:=
 import openredactle.webapp.element.RenderableElement
 import openredactle.webapp.game.Game
 import org.scalajs.dom.window.localStorage
@@ -47,7 +48,7 @@ object EmojiSelector extends RenderableElement:
     )
 
     sel.ref.onchange = _ =>
-      emojiSelected.set(sel.ref.value)
+      emojiSelected := sel.ref.value
 
       val emoji = Emoji valueOf sel.ref.value
       Game.changeEmojiInGame(emoji)

@@ -32,5 +32,6 @@ enum OutMessage derives ReadWriter:
   case GameWon(fullArticleData: Seq[ArticleData])
   case HintUsed()
   case PlayerChangedEmoji(playerId: String, emoji: Emoji)
-  case GiveUpVoteStatus(status: GiveUpVoteStatus)
+  case GiveUpVoteStatus(status: VoteStatus)
+  case GaveUp(fullArticleData: Seq[ArticleData])
   case Error(message: String)

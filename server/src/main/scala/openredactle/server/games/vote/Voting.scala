@@ -8,33 +8,42 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
 import scala.jdk.CollectionConverters.*
 
-class Vote:
+class Voting:
   private val voting = AtomicBoolean(false)
   private val votesNeededCount = AtomicInteger(0)
   private val votes = ConcurrentHashMap[UUID, Boolean]()
+  private val locked = AtomicBoolean(false)
 
   def startVoting(playerIds: Seq[UUID]): VoteStatus =
-    calculateNeeded(playerIds.size)
-    voting.set(true)
+    if locked.get || voting.get() then currentStatus
+    else
+      votesNeededCount.compareAndSet(0, playerIds.size)
+      voting.compareAndSet(false, true)
 
-    Active(votes.size, votesNeededCount.get)
+      Active(votes.size, votesNeededCount.get)
 
-  def stopVoting: VoteStatus =
-    voting.set(false)
-    votesNeededCount set 0
-    votes.clear()
-    InActive()
+  def stopVoting(): VoteStatus =
+    if locked.get() then currentStatus
+    else
+      voting.set(false)
+      votesNeededCount set 0
+      votes.clear()
+      InActive()
 
   def addPlayerVote(playerId: UUID, want: Boolean): VoteStatus =
-    votes.put(playerId, want)
-    currentStatus
+    if locked.get() then currentStatus
+    else
+      votes.put(playerId, want)
+      currentStatus
 
   def recalculateRequirements(playerIds: Seq[UUID]): VoteStatus =
-    val filtered = votes.asScala.filter(playerIds contains _._1)
-    votes.clear()
-    votes.putAll(filtered.asJava)
-    calculateNeeded(playerIds.size)
-    currentStatus
+    if locked.get() then currentStatus
+    else
+      val filtered = votes.asScala.filter(playerIds contains _._1)
+      votes.clear()
+      votes.putAll(filtered.asJava)
+      votesNeededCount set playerIds.size
+      currentStatus
 
   def currentStatus: VoteStatus =
     if !voting.get then InActive()
@@ -47,6 +56,5 @@ class Vote:
         Success()
       else
         Failure()
-
-  private def calculateNeeded(playerCount: Int): Unit =
-    votesNeededCount set math.ceil(playerCount.toDouble / 2).toInt
+        
+  def lock(): Unit = locked.compareAndSet(false, true)

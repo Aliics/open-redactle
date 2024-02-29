@@ -50,14 +50,19 @@ object StartMenu extends RenderableElement:
       },
 
       p("Join game"),
-      input(
-        required := true,
-        placeholder := "Game ID",
+      div(
+        layoutFlex(),
+        columnGap := "0.5rem",
 
-        value <-- gameIdInput,
-        onInput.mapToValue --> gameIdInput,
-      ),
-      button(colored(), "Join"),
+        input(
+          required := true,
+          placeholder := "Game ID",
+
+          value <-- gameIdInput,
+          onInput.mapToValue --> gameIdInput,
+        ),
+        button(colored(), "Join"),
+      )
     )
 
   private def renderStartElement =

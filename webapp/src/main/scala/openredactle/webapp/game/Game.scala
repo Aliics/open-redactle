@@ -8,6 +8,7 @@ import openredactle.shared.message.InMessage
 import openredactle.shared.message.InMessage.*
 import openredactle.webapp.*
 import openredactle.webapp.element.{RenderableElement, given}
+import openredactle.webapp.settings.vote.GiveUpBanner
 import org.scalajs.dom.{WebSocket, window}
 import upickle.default.{Writer, write}
 
@@ -26,13 +27,19 @@ object Game extends RenderableElement:
     gameConnection.set(Some(connectWs(gameId)))
 
   def addGuess(guess: String): Unit =
-    sendMessage(AddGuess.apply, guess)
+    sendMessage(AddGuess.apply)(guess)
 
   def requestHint(section: Int, num: Int): Unit =
-    sendMessage(RequestHint.apply, section, num)
+    sendMessage(RequestHint.apply)(section, num)
 
   def changeEmojiInGame(emoji: Emoji): Unit =
-    sendMessage(ChangeEmoji.apply, emoji)
+    sendMessage(ChangeEmoji.apply)(emoji)
+
+  def startGiveUpVote(): Unit =
+    sendMessage(StartGiveUpVote.apply)
+
+  def addGiveUpVote(vote: Boolean): Unit =
+    sendMessage(AddGiveUpVote.apply)(vote)
 
   override lazy val renderElement: Element =
     div(
@@ -53,7 +60,14 @@ object Game extends RenderableElement:
             maxHeight := "calc(100% - 3rem)", // Sort of a hack for the status bar.
             flexGrow := "1",
 
-            Article,
+            div(
+              layoutFlex(direction = "column"),
+              height := "100%",
+              flexGrow := 1,
+
+              Article,
+              GiveUpBanner,
+            ),
             Guesses,
           ),
 
@@ -67,11 +81,15 @@ object Game extends RenderableElement:
           ),
         )
 
-  private def sendMessage[I <: InMessage : Writer, A](apply: (String, A) => I, arg: A): Unit =
+  private def sendMessage[I <: InMessage : Writer](apply: String => I): Unit =
+    withGame: (gameId, gameConnection) =>
+      gameConnection.send(write(apply(gameId)))
+
+  private def sendMessage[I <: InMessage : Writer, A](apply: (String, A) => I)(arg: A): Unit =
     withGame: (gameId, gameConnection) =>
       gameConnection.send(write(apply(gameId, arg)))
 
-  private def sendMessage[I <: InMessage : Writer, A0, A1](apply: (String, A0, A1) => I, arg: A0, arg1: A1): Unit =
+  private def sendMessage[I <: InMessage : Writer, A0, A1](apply: (String, A0, A1) => I)(arg: A0, arg1: A1): Unit =
     withGame: (gameId, gameConnection) =>
       gameConnection.send(write(apply(gameId, arg, arg1)))
 
@@ -80,4 +98,3 @@ object Game extends RenderableElement:
       Errors.show("Not connected to game. Cannot perform action.")
     else
       thunk(gameId.now().get, gameConnection.now().get)
-        

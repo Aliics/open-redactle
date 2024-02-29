@@ -48,7 +48,7 @@ class WsServer(games: Games)(using env: Env) extends WebSocketServer(InetSocketA
         guesses = game.guessedWords.asScala.map(g => (g.player.id.toString, g.word, g.matchedCount, g.isHint)).toList,
         hintsAvailable = game.hintsAvailable.get(),
         secretPositions = game.secretPositions,
-        giveUpVoteStatus = game.vote.currentStatus,
+        giveUpVoteStatus = game.voting.currentStatus,
       ))
 
     given WebSocket = conn
@@ -65,6 +65,10 @@ class WsServer(games: Games)(using env: Env) extends WebSocketServer(InetSocketA
         games.withGame(gameId)(_.requestHint(section, num))
       case ChangeEmoji(gameId, emoji) =>
         games.withGame(gameId)(_.changeEmoji(emoji))
+      case StartGiveUpVote(gameId) =>
+        games.withGame(gameId)(_.startVoting())
+      case AddGiveUpVote(gameId, vote) =>
+        games.withGame(gameId)(_.addVote(vote))
 
   override def onError(conn: WebSocket, ex: Exception): Unit =
     logger.error(s"Error occurred: $ex")

@@ -3,9 +3,11 @@ package openredactle.webapp.game
 import com.raquo.airstream.ownership.ManualOwner
 import com.raquo.laminar.api.L.{*, given}
 import openredactle.shared.let
+import openredactle.shared.vote.VoteStatus
 import openredactle.webapp.element.{RenderableElement, renderableElementToElement}
 import openredactle.webapp.settings.SettingsPopup
-import openredactle.webapp.{Colors, colored, layoutFlex, solidBorder}
+import openredactle.webapp.settings.vote.GiveUpBanner
+import openredactle.webapp.*
 import org.scalajs.dom.{MouseEvent, window}
 
 import scala.scalajs.js.timers.setTimeout
@@ -60,14 +62,20 @@ object StatusBar extends RenderableElement:
       ),
 
       div(
-        child <-- Article.inHintMode.signal.map: inHintMode =>
+        layoutFlex(),
+        columnGap := "0.5rem",
+
+        child <-- Article.inHintMode.signal.combineWith(GiveUpBanner.status.signal).map:
+          case (_, VoteStatus.Success()) => emptyNode
+          case (inHintMode, status) =>
+            button(
+              colored(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
+              cls := "trim",
+              onClick --> (_ => Article.inHintMode.update(!_ && hintsAvailable.now() > 0)),
+              child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
+            )
+            ,
           button(
-            colored(bgColor = if inHintMode then Colors.actionHeld else Colors.action),
-            cls := "trim",
-            onClick --> (_ => Article.inHintMode.update(!_ && hintsAvailable.now() > 0)),
-            child.text <-- hintsAvailable.signal.map(h => s"Hints: $h")
-          ),
-        button(
           colored(),
           cls := "trim",
 
@@ -82,6 +90,6 @@ object StatusBar extends RenderableElement:
   private def copyShareUrl(_e: MouseEvent): Unit =
     window.navigator.clipboard.writeText(window.location.href)
 
-    copyLinkButtonText.set(copyButtonDoneText)
+    copyLinkButtonText := copyButtonDoneText
     setTimeout(500):
-      copyLinkButtonText.set(copyLinkButtonPromptText)
+      copyLinkButtonText := copyLinkButtonPromptText
