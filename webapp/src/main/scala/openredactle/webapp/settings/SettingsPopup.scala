@@ -43,7 +43,10 @@ object SettingsPopup extends RenderableElement:
             cls := "popup-item",
             borderTop := solidBorder(Colors.tertiary),
 
-            onClick --> (_ => Game.startGiveUpVote()),
+            onClick --> (_ =>
+              Game.startGiveUpVote()
+              showing := false
+              ),
 
             "Vote give up",
           ),

@@ -59,31 +59,33 @@ class Game(using ExecutionContext) extends ImplicitLazyLogger:
     broadcastVoteStatus(voting.recalculateRequirements(playerIds))
 
   def addGuess(rawGuess: String, isHint: Boolean = false)(using conn: WebSocket): Unit =
-    val guess = rawGuess.trim
-    val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
-    val alreadyGuessed = guessedWords.asScala.find(g => roughEquals(g.word)(guess))
-    if !guess.isBlank && !isFreeWord && alreadyGuessed.isEmpty then
-      val (matches, matchedCount) = getMatchingGuessData(fullArticleData)(guess)
+    // Separate words by space and treat them as multiple guesses.
+    // Also sneaks in a cheeky game active check in there.
+    for guess <- rawGuess.trim.split(" ") if !gameWon.get() && !gaveUp.get() do
+      val isFreeWord = freeWords.exists(_ equalsIgnoreCase guess)
+      val alreadyGuessed = guessedWords.asScala.find(g => roughEquals(g.word)(guess))
+      if !guess.isBlank && !isFreeWord && alreadyGuessed.isEmpty then
+        val (matches, matchedCount) = getMatchingGuessData(fullArticleData)(guess)
 
-      guessedWords.add(PlayerGuess(conn, guess, matchedCount, isHint))
-      logger.info(s"""${if isHint then "Hint" else "Guess"} in $id: "$guess"""")
-      broadcast(NewGuess(conn.id, guess, matchedCount, isHint))
+        guessedWords.add(PlayerGuess(conn, guess, matchedCount, isHint))
+        logger.info(s"""${if isHint then "Hint" else "Guess"} in $id: "$guess"""")
+        broadcast(NewGuess(conn.id, guess, matchedCount, isHint))
 
-      if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
-        matches.foreach: (word, matches) =>
-          broadcast(GuessMatch(word, matches))
-      else
-        logger.info(s"""Game won $id with guess: "$guess"""")
-        broadcast(GameWon(fullArticleData))
-        gameWon set true
+        if articleData.head.words.exists(_.isInstanceOf[Word.Unknown]) then
+          matches.foreach: (word, matches) =>
+            broadcast(GuessMatch(word, matches))
+        else
+          logger.info(s"""Game won $id with guess: "$guess"""")
+          broadcast(GameWon(fullArticleData))
+          gameWon set true
 
-        // Ensure no weird voting can happen afterwards.
-        // It just looks weird.
-        voting.stopVoting()
-        voting.lock()
-    else if alreadyGuessed.isDefined then
-      val PlayerGuess(_, word, _, isHint) = alreadyGuessed.get
-      conn.send(AlreadyGuessed(conn.id, word, isHint))
+          // Ensure no weird voting can happen afterwards.
+          // It just looks weird.
+          voting.stopVoting()
+          voting.lock()
+      else if alreadyGuessed.isDefined then
+        val PlayerGuess(_, word, _, isHint) = alreadyGuessed.get
+        conn.send(AlreadyGuessed(conn.id, word, isHint))
 
   def requestHint(section: Int, num: Int)(using WebSocket): Unit =
     val avail = hintsAvailable.get()
