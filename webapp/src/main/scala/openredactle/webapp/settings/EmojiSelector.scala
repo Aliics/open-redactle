@@ -51,8 +51,11 @@ object EmojiSelector extends RenderableElement:
       emojiSelected := sel.ref.value
 
       val emoji = Emoji valueOf sel.ref.value
-      Game.changeEmojiInGame(emoji)
+
       storeEmoji(emoji)
+
+      if Game.gameId.now().isDefined
+      then Game.changeEmojiInGame(emoji)
 
     sel
 
