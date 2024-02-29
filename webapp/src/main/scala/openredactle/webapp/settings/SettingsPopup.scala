@@ -39,9 +39,9 @@ object SettingsPopup extends RenderableElement:
           width := "100%",
 
           a(
-            colored(bgColor = Colors.mainBackground),
+            backgroundColor := Colors.mainBackground,
             cls := "popup-item",
-            border := solidBorder(Colors.tertiary),
+            borderTop := solidBorder(Colors.tertiary),
 
             onClick --> (_ => Game.startGiveUpVote()),
 
