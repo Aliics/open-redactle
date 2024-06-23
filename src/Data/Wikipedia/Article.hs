@@ -26,7 +26,7 @@ data RandomInfo = RandomInfo
 data PageInfo = PageInfo
   { pageInfoId :: Int,
     pageInfoTitle :: String,
-    pageInfoWatchers :: Int,
+    pageInfoWatchers :: Maybe Int,
     pageInfoLength :: Int
   }
   deriving (Generic, Show)
@@ -50,5 +50,5 @@ instance FromJSON RandomInfo where
   parseJSON _ = empty
 
 instance FromJSON PageInfo where
-  parseJSON (Object v) = PageInfo <$> v .: "pageid" <*> v .: "title" <*> v .: "watchers" <*> v .: "length"
+  parseJSON (Object v) = PageInfo <$> v .: "pageid" <*> v .: "title" <*> v .:? "watchers" <*> v .: "length"
   parseJSON _ = empty
