@@ -1,7 +1,11 @@
-module Network.Wikipedia.Constants (wikipediaUrl, wikipediaApiUrl) where
+{-# LANGUAGE OverloadedStrings #-}
 
-wikipediaUrl :: String
-wikipediaUrl = "https://en.wikipedia.org/wiki"
+module Network.Wikipedia.Constants (wikipediaBaseRequest, wikipediaBaseAPIRequest) where
 
-wikipediaApiUrl :: String
-wikipediaApiUrl = "https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&uselang=en"
+import Network.HTTP.Client
+
+wikipediaBaseRequest :: Request
+wikipediaBaseRequest = "https://en.wikipedia.org/wiki"
+
+wikipediaBaseAPIRequest :: Request
+wikipediaBaseAPIRequest = "https://en.wikipedia.org/w/api.php"

@@ -18,16 +18,16 @@ newtype RandomInfos = RandomInfos [RandomInfo] deriving (Show)
 newtype PageInfos = PageInfos [PageInfo] deriving (Show)
 
 data RandomInfo = RandomInfo
-  { id :: Int,
-    name :: String
+  { randomInfoId :: Int,
+    randomInfoTitle :: String
   }
   deriving (Generic, Show)
 
 data PageInfo = PageInfo
-  { pageid :: Int,
-    title :: String,
-    watchers :: Int,
-    length :: Int
+  { pageInfoId :: Int,
+    pageInfoTitle :: String,
+    pageInfoWatchers :: Int,
+    pageInfoLength :: Int
   }
   deriving (Generic, Show)
 
@@ -45,6 +45,10 @@ instance FromJSON PageInfos where
     return $ PageInfos pages
   parseJSON _ = empty
 
-instance FromJSON RandomInfo
+instance FromJSON RandomInfo where
+  parseJSON (Object v) = RandomInfo <$> v .: "id" <*> v .: "title"
+  parseJSON _ = empty
 
-instance FromJSON PageInfo
+instance FromJSON PageInfo where
+  parseJSON (Object v) = PageInfo <$> v .: "pageid" <*> v .: "title" <*> v .: "watchers" <*> v .: "length"
+  parseJSON _ = empty
