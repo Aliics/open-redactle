@@ -1,0 +1,84 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           open-redactle
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/aliics/open-redactle#readme>
+homepage:       https://github.com/aliics/open-redactle#readme
+bug-reports:    https://github.com/aliics/open-redactle/issues
+author:         Aliics
+maintainer:     Aliics@hotmail.com
+copyright:      2024 Aliics
+license:        BSD-3-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/aliics/open-redactle
+
+library
+  exposed-modules:
+      Data.Wikipedia.Article
+      Network.Wikipedia.Constants
+  other-modules:
+      Paths_open_redactle
+  autogen-modules:
+      Paths_open_redactle
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      aeson ==2.1.2.1
+    , base >=4.7 && <5
+    , text ==2.0.2
+  default-language: Haskell2010
+
+executable open-redactle-article-fetcher-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_open_redactle
+  autogen-modules:
+      Paths_open_redactle
+  hs-source-dirs:
+      app/article-fetcher
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , open-redactle
+  default-language: Haskell2010
+
+executable open-redactle-server-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_open_redactle
+  autogen-modules:
+      Paths_open_redactle
+  hs-source-dirs:
+      app/server
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , open-redactle
+  default-language: Haskell2010
+
+test-suite open-redactle-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_open_redactle
+  autogen-modules:
+      Paths_open_redactle
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , open-redactle
+  default-language: Haskell2010
