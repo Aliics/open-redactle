@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Network.Wikipedia (queryNRandom, fetchPagesInfo) where
+module Network.Wikipedia (queryNRandom, fetchPagesInfo, extractBatchIds) where
 
 import Data.Aeson (eitherDecode)
-import Data.ByteString (ByteString)
+import Data.ByteString (ByteString, intercalate)
 import Data.ByteString.Char8 (pack)
 import Data.Wikipedia.Article (PageInfos (..), RandomInfos (..))
 import Network.HTTP.Client (queryString)
@@ -41,14 +41,10 @@ buildPagesInfoReq ids =
 extractBatchIds :: [Int] -> ByteString
 extractBatchIds [] = ""
 extractBatchIds ids =
-  joinIds batch
+  intercalate "|" batch
   where
-    batch = take wikipediaPageBatchSize ids
-
-joinIds :: [Int] -> ByteString
-joinIds [] = ""
-joinIds [h] = pack $ show h
-joinIds (h : t) = pack (show h) <> "|" <> joinIds t
+    idBatch = take wikipediaPageBatchSize ids
+    batch = pack . show <$> idBatch
 
 clientManager :: IO HTTP.Manager
 clientManager = HTTP.newManager tlsManagerSettings

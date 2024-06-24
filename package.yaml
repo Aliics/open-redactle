@@ -72,3 +72,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - open-redactle
+    - hspec == 2.11.9

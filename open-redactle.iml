@@ -89,5 +89,38 @@
     <orderEntry type="library" name="th-compat-0.1.5" level="project" />
     <orderEntry type="library" name="process-1.6.19.0" level="project" />
     <orderEntry type="library" name="zlib-0.6.3.0" level="project" />
+    <orderEntry type="library" name="http-client-tls-0.3.6.3" level="project" />
+    <orderEntry type="library" name="crypton-0.34" level="project" />
+    <orderEntry type="library" name="crypton-connection-0.3.2" level="project" />
+    <orderEntry type="library" name="memory-0.18.0" level="project" />
+    <orderEntry type="library" name="tls-1.8.0" level="project" />
+    <orderEntry type="library" name="basement-0.0.16" level="project" />
+    <orderEntry type="library" name="integer-gmp-1.1" level="project" />
+    <orderEntry type="library" name="crypton-x509-1.7.7" level="project" />
+    <orderEntry type="library" name="crypton-x509-store-1.6.9" level="project" />
+    <orderEntry type="library" name="crypton-x509-system-1.6.7" level="project" />
+    <orderEntry type="library" name="crypton-x509-validation-1.6.12" level="project" />
+    <orderEntry type="library" name="socks-0.6.1" level="project" />
+    <orderEntry type="library" name="asn1-encoding-0.9.6" level="project" />
+    <orderEntry type="library" name="asn1-types-0.3.4" level="project" />
+    <orderEntry type="library" name="cereal-0.5.8.3" level="project" />
+    <orderEntry type="library" name="unix-time-0.4.15" level="project" />
+    <orderEntry type="library" name="asn1-parse-0.9.5" level="project" />
+    <orderEntry type="library" name="hourglass-0.2.12" level="project" />
+    <orderEntry type="library" name="pem-0.2.4" level="project" />
+    <orderEntry type="library" name="old-time-1.1.0.4" level="project" />
+    <orderEntry type="library" name="old-locale-1.0.0.7" level="project" />
+    <orderEntry type="library" name="hspec-2.11.9" level="project" />
+    <orderEntry type="library" name="hspec-core-2.11.9" level="project" />
+    <orderEntry type="library" name="hspec-discover-2.11.9" level="project" />
+    <orderEntry type="library" name="hspec-expectations-0.8.4" level="project" />
+    <orderEntry type="library" name="HUnit-1.6.2.0" level="project" />
+    <orderEntry type="library" name="ansi-terminal-1.0.2" level="project" />
+    <orderEntry type="library" name="call-stack-0.4.0" level="project" />
+    <orderEntry type="library" name="haskell-lexer-1.1.1" level="project" />
+    <orderEntry type="library" name="quickcheck-io-0.2.0" level="project" />
+    <orderEntry type="library" name="tf-random-0.5" level="project" />
+    <orderEntry type="library" name="ansi-terminal-types-0.11.5" level="project" />
+    <orderEntry type="library" name="colour-2.3.6" level="project" />
   </component>
 </module>
