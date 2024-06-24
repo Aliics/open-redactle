@@ -80,6 +80,7 @@ test-suite open-redactle-core-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Network.WikipediaSpec
       Paths_open_redactle
   autogen-modules:
       Paths_open_redactle
