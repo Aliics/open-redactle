@@ -1,6 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Network.Wikipedia (queryNRandom, fetchPagesInfo, extractBatchIds) where
+module Network.Wikipedia
+  ( queryNRandom,
+    fetchPagesInfo,
+    extractBatchIds,
+  )
+where
 
 import Data.Aeson (eitherDecode)
 import Data.ByteString (ByteString, intercalate)
