@@ -45,7 +45,7 @@ heading3 = do
 bulletPoints :: Scraper Text ArticleData
 bulletPoints = do
   lis <- texts $ "ul" // "li"
-  
+
   guard . not $ Prelude.null lis
-  
+
   return $ BulletPoints lis
