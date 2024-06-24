@@ -1,14 +1,14 @@
-name:                open-redactle
-version:             0.1.0.0
-github:              "aliics/open-redactle"
-license:             BSD-3-Clause
-author:              "Aliics"
-maintainer:          "Aliics@hotmail.com"
-copyright:           "2024 Aliics"
+name: open-redactle
+version: 0.1.0.0
+github: "aliics/open-redactle"
+license: BSD-3-Clause
+author: "Aliics"
+maintainer: "Aliics@hotmail.com"
+copyright: "2024 Aliics"
 
 extra-source-files:
-- README.md
-- CHANGELOG.md
+  - README.md
+  - CHANGELOG.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,37 +17,38 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/aliics/open-redactle#readme>
+description: Please see the README on GitHub at <https://github.com/aliics/open-redactle#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+  - base >= 4.7 && < 5
 
 ghc-options:
-- -Wall
-- -Wcompat
-- -Widentities
-- -Wincomplete-record-updates
-- -Wincomplete-uni-patterns
-- -Wmissing-export-lists
-- -Wmissing-home-modules
-- -Wpartial-fields
-- -Wredundant-constraints
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wmissing-export-lists
+  - -Wmissing-home-modules
+  - -Wpartial-fields
+  - -Wredundant-constraints
 
 library:
-  source-dirs: src
+  source-dirs: lib
   dependencies:
-    - aeson == 2.1.2.1
-    - text == 2.0.2
-    - bytestring == 0.11.5.3
-    - http-client == 0.7.17
-    - http-client-tls == 0.3.6.3
-    - scalpel == 0.6.2.2
-    - scalpel-core == 0.6.2.2
+    - aeson
+    - text
+    - bytestring
+    - http-client
+    - http-client-tls
+    - scalpel
+    - scalpel-core
+    - websockets
 
 executables:
   open-redactle-article-fetcher-exe:
     main: Main.hs
-    source-dirs: app/article-fetcher
+    source-dirs: article-fetcher
     ghc-options:
       - -threaded
       - -rtsopts
@@ -55,23 +56,23 @@ executables:
     dependencies:
       - open-redactle
   open-redactle-server-exe:
-    main:                Main.hs
-    source-dirs:         app/server
+    main: Main.hs
+    source-dirs: server
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - open-redactle
+      - open-redactle
 
 tests:
-  open-redactle-test:
-    main:                Spec.hs
-    source-dirs:         test
+  open-redactle-core-test:
+    main: Spec.hs
+    source-dirs: test
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - open-redactle
-    - hspec == 2.11.9
+      - open-redactle
+      - hspec == 2.11.9

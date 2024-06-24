@@ -1,16 +1,19 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Data.Wikipedia.Article
+module Data.Wikipedia.Types
   ( RandomInfos (..),
     RandomInfo (..),
     PageInfos (..),
     PageInfo (..),
+    Article (..),
+    ArticleData (..),
   )
 where
 
 import Control.Applicative (empty)
 import Data.Aeson
+import Data.Text (Text)
 import GHC.Generics (Generic)
 
 newtype RandomInfos = RandomInfos [RandomInfo] deriving (Show)
@@ -29,6 +32,15 @@ data PageInfo = PageInfo
     pageInfoWatchers :: Maybe Int,
     pageInfoLength :: Int
   }
+  deriving (Generic, Show)
+
+newtype Article = Article [ArticleData] deriving (Generic, Show)
+
+data ArticleData
+  = Title Text
+  | Heading Text
+  | Paragraph Text
+  | BulletPoints [Text]
   deriving (Generic, Show)
 
 instance FromJSON RandomInfos where
@@ -52,3 +64,7 @@ instance FromJSON RandomInfo where
 instance FromJSON PageInfo where
   parseJSON (Object v) = PageInfo <$> v .: "pageid" <*> v .: "title" <*> v .:? "watchers" <*> v .: "length"
   parseJSON _ = empty
+
+instance ToJSON Article
+
+instance ToJSON ArticleData

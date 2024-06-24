@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Network.Wikipedia.Scraper (scrapeArticleData) where
+module Network.Wikipedia.Article (scrapeArticleData) where
 
 import Control.Applicative ((<|>))
 import Control.Monad (guard)
 import Data.Text as T
-import Data.Wikipedia.Scraper
+import Data.Wikipedia.Types
 import Network.Wikipedia.Constants (wikipediaBaseURL)
 import Text.HTML.Scalpel
 

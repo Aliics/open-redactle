@@ -10,7 +10,7 @@ where
 import Data.Aeson (eitherDecode)
 import Data.ByteString (ByteString, intercalate)
 import Data.ByteString.Char8 (pack)
-import Data.Wikipedia.Article (PageInfos (..), RandomInfos (..))
+import Data.Wikipedia.Types (PageInfos (..), RandomInfos (..))
 import Network.HTTP.Client (queryString)
 import qualified Network.HTTP.Client as HTTP
 import Network.HTTP.Client.TLS (tlsManagerSettings)
