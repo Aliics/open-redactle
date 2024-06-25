@@ -25,7 +25,11 @@ source-repository head
 
 library
   exposed-modules:
+      Control.Game
+      Data.Game.Types
       Data.Wikipedia.Types
+      Network.Server
+      Network.Server.Conn
       Network.Wikipedia
       Network.Wikipedia.Article
       Network.Wikipedia.Constants
@@ -45,6 +49,7 @@ library
     , scalpel
     , scalpel-core
     , text
+    , uuid
     , websockets
   default-language: Haskell2010
 

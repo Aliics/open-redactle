@@ -1,4 +1,6 @@
 module Main (main) where
 
+import Network.Server (runServer)
+
 main :: IO ()
-main = putStrLn "Hello, Server!"
+main = runServer
