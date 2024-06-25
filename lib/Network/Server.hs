@@ -26,9 +26,9 @@ app games pc = do
   state <- getGameEventQueue games $ C.unpack path
 
   case state of
-    (Just s) -> do
+    (Just s) ->
       WS.withPingThread conn 30 (pure ()) (handleConn conn $ gameEventQueue s)
-    Nothing -> do
+    Nothing ->
       WS.sendClose conn ("Goodbye" :: ByteString)
 
 getGameEventQueue :: MVar [GameState] -> String -> IO (Maybe GameState)
@@ -37,6 +37,8 @@ getGameEventQueue games "/" = do
 
   modifyMVar_ games $ \s -> do
     pure $ s <> [state]
+
+  putStrLn $ "Started a new game: " <> show (gameId state)
 
   pure $ Just state
 getGameEventQueue games ('/' : existingId) = do

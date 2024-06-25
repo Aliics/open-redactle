@@ -2,47 +2,53 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module Data.Game.Types
-  ( GameState (..),
-    GameEventQueue,
+  ( PlayerConn,
+    GameState (..),
+    GameEventChan,
     GameEvent (..),
     InputMessage (..),
+    OutputMessage (..),
   )
 where
 
-import Control.Concurrent (MVar)
+import Control.Concurrent (Chan)
 import Data.Aeson (FromJSON, ToJSON)
-import Data.ByteString (ByteString)
 import Data.Text (Text)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
+import qualified Network.WebSockets as WS
+
+type PlayerConn = (UUID, WS.Connection)
 
 data GameState = GameState
   { gameId :: UUID,
-    gameEventQueue :: GameEventQueue,
-    gameGuessedWords :: [ByteString]
+    gameEventQueue :: GameEventChan,
+    gamePlayers :: [PlayerConn],
+    gameGuessedWords :: [Text]
   }
-  deriving (Show)
 
-type GameEventQueue = MVar [GameEvent]
+type GameEventChan = Chan GameEvent
 
 data GameEvent
-  = PlayerJoined
-  | PlayerLeft
-  | PlayerInput InputMessage
-  deriving (Generic, Show)
+  = ConnPlayer PlayerConn
+  | DisConnPlayer PlayerConn
+  | PlayerInput PlayerConn InputMessage
 
 data InputMessage
   = MkGuess Text
   | UseHint Int
   deriving (Generic, Show)
 
-instance Show GameEventQueue where
-  show _ = "MVar [GameEvent]"
-
-instance FromJSON GameEvent
-
-instance ToJSON GameEvent
+data OutputMessage
+  = PlayerJoined UUID
+  | PlayerLeft UUID
+  | GuessMade UUID Text
+  deriving (Generic, Show)
 
 instance FromJSON InputMessage
 
 instance ToJSON InputMessage
+
+instance FromJSON OutputMessage
+
+instance ToJSON OutputMessage
