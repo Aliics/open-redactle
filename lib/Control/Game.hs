@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Control.Game
   ( runNewGame,
@@ -11,17 +12,21 @@ import Data.Aeson (encode)
 import Data.Game.Types
 import Data.UUID.V4 (nextRandom)
 import qualified Network.WebSockets as WS
+import Network.Wikipedia.Article (scrapeArticleData)
 
 newGameState :: IO GameState
 newGameState = do
   newId <- nextRandom
   newEventQueue <- newChan
+  (Just newArticle) <- scrapeArticleData 39381
   pure
     GameState
       { gameId = newId,
         gameEventQueue = newEventQueue,
-        gamePlayers = [],
-        gameGuessedWords = []
+        article = newArticle,
+        playerConns = [],
+        guessedWords = [],
+        hintedWords = []
       }
 
 runNewGame :: IO GameState
@@ -38,22 +43,29 @@ gameLoop s = do
   gameLoop procState
 
 process :: GameState -> GameEvent -> IO GameState
-process s@GameState {gamePlayers = players} (ConnPlayer c) = do
-  broadcast players $ PlayerJoined (fst c)
-  pure $ s {gamePlayers = players <> [c]}
-process s@GameState {gamePlayers = players} (DisConnPlayer c) = do
-  broadcast players $ PlayerLeft (fst c)
-  pure $ s {gamePlayers = filter (\(pid, _) -> pid /= fst c) players}
-process s@GameState {gamePlayers = players, gameGuessedWords = guesses} (PlayerInput (pid, _) (MkGuess g)) = do
-  broadcast players $ GuessMade pid g
-  pure $ s {gameGuessedWords = guesses <> [g]}
-process s (PlayerInput _ (UseHint _)) = do
-  --  broadcast players $ GuessMade g
-  pure s
+process s@GameState {playerConns = pcs} (ConnPlayer c@(pid, _)) =
+  withState
+    s {playerConns = pcs <> [c]}
+    $ broadcast (PlayerJoined pid)
+process s@GameState {playerConns = pcs} (DisConnPlayer (pid, _)) =
+  withState
+    s {playerConns = filter ((== pid) . fst) pcs}
+    $ broadcast (PlayerLeft pid)
+process s@GameState {guessedWords = gs} (PlayerInput (pid, _) (MkGuess g)) =
+  withState
+    s {guessedWords = gs <> [(pid, g)]}
+    $ broadcast (GuessMade pid g)
+process gs@GameState {hintedWords = hws} (PlayerInput (pid, _) (UseHint _)) =
+  withState
+    gs {hintedWords = hws <> [(pid, "hint")]}
+    $ broadcast (HintUsed pid "hint")
 
-broadcast :: [PlayerConn] -> OutputMessage -> IO ()
-broadcast [] _ = pure ()
-broadcast (p : ps) m = do
+withState :: GameState -> (GameState -> IO ()) -> IO GameState
+withState s f = f s >> pure s
+
+broadcast :: OutputMessage -> GameState -> IO ()
+broadcast _ GameState {playerConns = []} = pure ()
+broadcast m gs@GameState {playerConns = (p : ps)} = do
   -- I don't actually care about our exceptions here. ConnectionExceptions are bound to happen.
   _ <- try (WS.sendTextData (snd p) $ encode m) :: IO (Either WS.ConnectionException ())
-  broadcast ps m
+  broadcast m gs {playerConns = ps}

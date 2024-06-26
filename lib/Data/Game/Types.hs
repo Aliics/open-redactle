@@ -17,14 +17,19 @@ import Data.Text (Text)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import qualified Network.WebSockets as WS
+import Data.Wikipedia.Types (Article)
 
 type PlayerConn = (UUID, WS.Connection)
 
 data GameState = GameState
   { gameId :: UUID,
     gameEventQueue :: GameEventChan,
-    gamePlayers :: [PlayerConn],
-    gameGuessedWords :: [Text]
+
+    article :: Article,
+
+    playerConns :: [PlayerConn],
+    guessedWords :: [(UUID, Text)],
+    hintedWords :: [(UUID, Text)]
   }
 
 type GameEventChan = Chan GameEvent
@@ -43,6 +48,8 @@ data OutputMessage
   = PlayerJoined UUID
   | PlayerLeft UUID
   | GuessMade UUID Text
+  | HintUsed UUID Text
+  | GameInfo [UUID] [Text] [Text]
   deriving (Generic, Show)
 
 instance FromJSON InputMessage
