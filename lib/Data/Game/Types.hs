@@ -49,7 +49,7 @@ data OutputMessage
   | PlayerLeft UUID
   | GuessMade UUID Text
   | HintUsed UUID Text
-  | GameInfo [UUID] [Text] [Text]
+  | GameInfo UUID [UUID] [Text] [Text]
   deriving (Generic, Show)
 
 instance FromJSON InputMessage

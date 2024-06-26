@@ -43,10 +43,13 @@ gameLoop s = do
   gameLoop procState
 
 process :: GameState -> GameEvent -> IO GameState
-process s@GameState {playerConns = pcs} (ConnPlayer c@(pid, _)) =
+process s@GameState {playerConns = pcs} (ConnPlayer c@(pid, conn)) =
   withState
     s {playerConns = pcs <> [c]}
-    $ broadcast (PlayerJoined pid)
+    $ \gs -> do
+      let gameInfo = GameInfo (gameId gs) (fst <$> playerConns gs) (snd <$> guessedWords gs) (snd <$> hintedWords gs)
+      WS.sendTextData conn $ encode gameInfo
+      broadcast (PlayerJoined pid) gs
 process s@GameState {playerConns = pcs} (DisConnPlayer (pid, _)) =
   withState
     s {playerConns = filter ((== pid) . fst) pcs}
