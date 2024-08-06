@@ -11,10 +11,12 @@ type Coordinator struct {
 }
 
 func (c *Coordinator) CreateNewGame() uuid.UUID {
-	game := Game{}
+	gameID := uuid.New()
+	game := Game{
+		ID: gameID,
+	}
 	go game.Run()
 
-	gameID := uuid.New()
 	c.games.Put(gameID, &game)
 
 	return gameID

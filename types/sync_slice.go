@@ -7,10 +7,6 @@ type SyncSlice[T any] struct {
 	items []T
 }
 
-func NewSyncSlice[T any]() *SyncSlice[T] {
-	return &SyncSlice[T]{}
-}
-
 func (s *SyncSlice[T]) Get(i int) T {
 	s.mx.Lock()
 	defer s.mx.Unlock()
@@ -23,15 +19,13 @@ func (s *SyncSlice[T]) Push(value T) {
 	s.items = append(s.items, value)
 }
 
-func (s *SyncSlice[T]) Range(f func(int, T) bool) {
+func (s *SyncSlice[T]) Range(f func(T)) {
 	s.mx.Lock()
 	cpy := make([]T, len(s.items))
 	copy(cpy, s.items)
 	s.mx.Unlock()
 
-	for i, item := range cpy {
-		if !f(i, item) {
-			break
-		}
+	for _, item := range cpy {
+		f(item)
 	}
 }
