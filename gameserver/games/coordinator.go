@@ -28,5 +28,14 @@ func (c *Coordinator) AcquireChannels(gameID uuid.UUID) (*ConnChannels, error) {
 		return nil, errors.New("game not found")
 	}
 
-	return (*game).ConnectPlayer(), nil
+	return game.ConnectPlayer(), nil
+}
+
+func (c *Coordinator) DisconnectPlayer(gameID uuid.UUID, channels *ConnChannels) {
+	game, ok := c.games.Get(gameID)
+	if !ok {
+		return
+	}
+
+	game.DisconnectPlayer(channels)
 }

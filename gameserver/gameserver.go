@@ -2,6 +2,7 @@ package gameserver
 
 import (
 	"encoding/json"
+	"errors"
 	"gameserver/events"
 	"gameserver/games"
 	"github.com/google/uuid"
@@ -47,12 +48,17 @@ func (s *Server) handleWSConn(ws *websocket.Conn) {
 		_, _ = io.WriteString(ws, err.Error())
 		return
 	}
+	defer s.Coordinator.DisconnectPlayer(gameID, channels)
 
 	go func() {
+		defer func() { _ = channels.Close() }() // This will signal to close the outbound channel also.
+
 		for {
 			var in events.InEvent
 			if err = json.NewDecoder(ws).Decode(&in); err != nil {
-				slog.Warn("error reading message", "err", err)
+				if !errors.Is(err, io.EOF) {
+					slog.Warn("error reading message", "err", err)
+				}
 				return
 			}
 
@@ -60,8 +66,7 @@ func (s *Server) handleWSConn(ws *websocket.Conn) {
 		}
 	}()
 
-	for {
-		out := <-channels.Outbound
+	for out := range channels.Outbound {
 		if err = json.NewEncoder(ws).Encode(out); err != nil {
 			slog.Warn("error writing message", "err", err)
 			return

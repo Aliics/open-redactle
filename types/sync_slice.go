@@ -1,6 +1,9 @@
 package types
 
-import "sync"
+import (
+	"slices"
+	"sync"
+)
 
 type SyncSlice[T any] struct {
 	mx    sync.Mutex
@@ -17,6 +20,12 @@ func (s *SyncSlice[T]) Push(value T) {
 	s.mx.Lock()
 	defer s.mx.Unlock()
 	s.items = append(s.items, value)
+}
+
+func (s *SyncSlice[T]) DeleteFunc(pred func(T) bool) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	s.items = slices.DeleteFunc(s.items, pred)
 }
 
 func (s *SyncSlice[T]) Range(f func(T)) {
