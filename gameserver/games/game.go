@@ -2,6 +2,7 @@ package games
 
 import (
 	"gameserver/events"
+	"gameserver/state"
 	"github.com/google/uuid"
 	"types"
 )
@@ -10,6 +11,7 @@ type Game struct {
 	ID uuid.UUID
 
 	PlayerConnChannels types.SyncSlice[*ConnChannels]
+	GuessesMade        types.SyncSlice[state.Guess]
 }
 
 func (g *Game) Run() {
@@ -28,6 +30,15 @@ func (g *Game) Run() {
 }
 
 func (g *Game) MakeGuess(channels *ConnChannels, data events.MakeGuess) {
+	if g.GuessesMade.Exists(func(guess state.Guess) bool { return guess.Guess == data.Guess }) {
+		return
+	}
+
+	g.GuessesMade.Push(state.Guess{
+		PlayerID: channels.PlayerID,
+		Guess:    data.Guess,
+	})
+
 	g.Broadcast(events.NewOutEvent(events.NewGuess{
 		PlayerID: channels.PlayerID,
 		Guess:    data.Guess,
@@ -36,13 +47,14 @@ func (g *Game) MakeGuess(channels *ConnChannels, data events.MakeGuess) {
 
 func (g *Game) SendCurrentGameState(channels *ConnChannels) {
 	var playerIDs []uuid.UUID
-	g.PlayerConnChannels.Range(func(channels *ConnChannels) {
-		playerIDs = append(playerIDs, channels.PlayerID)
-	})
+	for _, playerChannels := range g.PlayerConnChannels.Now() {
+		playerIDs = append(playerIDs, playerChannels.PlayerID)
+	}
 
 	channels.Outbound <- events.NewOutEvent(events.CurrentGameState{
-		GameID:    g.ID,
-		PlayerIDs: playerIDs,
+		GameID:      g.ID,
+		PlayerIDs:   playerIDs,
+		GuessesMade: g.GuessesMade.Now(),
 	})
 }
 

@@ -38,3 +38,20 @@ func (s *SyncSlice[T]) Range(f func(T)) {
 		f(item)
 	}
 }
+
+func (s *SyncSlice[T]) Exists(pred func(T) bool) bool {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	for _, item := range s.items {
+		if pred(item) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (s *SyncSlice[T]) Now() []T {
+	return s.items
+}

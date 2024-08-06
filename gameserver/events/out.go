@@ -1,6 +1,7 @@
 package events
 
 import (
+	"gameserver/state"
 	"github.com/google/uuid"
 	"reflect"
 )
@@ -16,8 +17,9 @@ func NewOutEvent(v any) OutEvent {
 }
 
 type CurrentGameState struct {
-	GameID    uuid.UUID   `json:"gameId"`
-	PlayerIDs []uuid.UUID `json:"playerIds"`
+	GameID      uuid.UUID     `json:"gameId"`
+	PlayerIDs   []uuid.UUID   `json:"playerIds"`
+	GuessesMade []state.Guess `json:"guessesMade"`
 }
 
 type NewGuess struct {
