@@ -32,6 +32,9 @@ func (g *Game) ConnectPlayer() *ConnChannels {
 	g.PlayerConnChannels.Push(channels)
 
 	go g.SendCurrentGameState(channels)
+	go g.Broadcast(events.NewOutEvent(events.PlayerConnected{
+		PlayerID: channels.PlayerID,
+	}))
 
 	return channels
 }
@@ -43,13 +46,10 @@ func (g *Game) Broadcast(event events.OutEvent) {
 }
 
 func (g *Game) MakeGuess(channels *ConnChannels, data events.MakeGuess) {
-	g.Broadcast(events.OutEvent{
-		Tag: "newGuess",
-		Data: events.NewGuess{
-			PlayerID: channels.PlayerID,
-			Guess:    data.Guess,
-		},
-	})
+	g.Broadcast(events.NewOutEvent(events.NewGuess{
+		PlayerID: channels.PlayerID,
+		Guess:    data.Guess,
+	}))
 }
 
 func (g *Game) SendCurrentGameState(channels *ConnChannels) {
@@ -59,12 +59,9 @@ func (g *Game) SendCurrentGameState(channels *ConnChannels) {
 			playerIDs = append(playerIDs, channels.PlayerID)
 		})
 
-		channels.Outbound <- events.OutEvent{
-			Tag: "currentGameState",
-			Data: events.CurrentGameState{
-				GameID:    g.ID,
-				PlayerIDs: playerIDs,
-			},
-		}
+		channels.Outbound <- events.NewOutEvent(events.CurrentGameState{
+			GameID:    g.ID,
+			PlayerIDs: playerIDs,
+		})
 	}()
 }

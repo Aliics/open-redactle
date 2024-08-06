@@ -9,7 +9,7 @@ import (
 
 // inEventTagMapping maps all of our input tags to their respective data types.
 var inEventTagMapping = map[string]func() any{
-	"makeGuess": func() any { return &MakeGuess{} },
+	"MakeGuess": func() any { return &MakeGuess{} },
 }
 
 type MakeGuess struct {
